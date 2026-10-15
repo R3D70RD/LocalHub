@@ -1,156 +1,59 @@
-# LocalHub
-La plateforme locale pour s'entraider, partager et se retrouver.
-LocalHub est une plateforme communautaire conçue pour faciliter les échanges entre les résidents d'une même communauté.
-Dans de nombreuses communautés, les habitants disposent de ressources, de compétences ou de temps qu'ils pourraient partager avec leurs voisins, mais il n'existe pas toujours d'espace centralisé et simple pour faciliter ces échanges.
-LocalHub rassemble ces interactions au même endroit afin de permettre aux utilisateurs de demander de l'aide, proposer leurs services, partager ou emprunter du matériel, vendre des objets de seconde main et organiser des activités locales.
-L'objectif est de créer un espace numérique axé sur les interactions locales et réelles entre les membres d'une communauté.
+<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
 
-## 🌐 Fonctionnalités
-LocalHub permet notamment aux utilisateurs de :
-🤝 Demander de l'aide auprès de personnes à proximité
-🛠️ Partager ou prêter du matériel et des outils
-💼 Proposer ou rechercher des services locaux
-🏷️ Vendre des objets de seconde main
-🎉 Créer et rejoindre des activités communautaires
-💬 Communiquer avec d'autres utilisateurs
-⭐ Évaluer les interactions et les utilisateurs
-📍 Découvrir des publications selon leur proximité
-Le système est conçu autour d'un principe simple :
-Ce dont une personne a besoin peut être quelque chose qu'une autre personne possède, sait faire ou souhaite partager.
+<p align="center">
+<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
+<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
+<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
+<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
+</p>
 
-## 🏗️ Technologies
-LocalHub est développé dans le cadre du cours de développement d'applications Web transactionnelles.
-Technologies principales
-PHP 8.2
-HTML5
-CSS3
-MySQL 8.0
-Apache 2.4
-AMPPS 6.3.9
-Environnement
-Le projet utilise PHP de manière native et ne nécessite aucun framework frontend moderne tel que React ou Vue.
+## About Laravel
 
-## 📋 Logiciels et versions requis
-Logiciel
-Version
-AMPPS
-6.3.9
-Apache
-2.4 ou version fournie par AMPPS
-PHP
-8.2
-MySQL
-8.0 ou version fournie par AMPPS
+Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
 
+- [Simple, fast routing engine](https://laravel.com/docs/routing).
+- [Powerful dependency injection container](https://laravel.com/docs/container).
+- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
+- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
+- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
+- [Robust background job processing](https://laravel.com/docs/queues).
+- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
 
-## 🚀 Installation
-1. Cloner le dépôt
-Clonez le dépôt GitHub :
-git clone https://github.com/RedfordSTM/LocalHub.git
-cd LocalHub
+Laravel is accessible, powerful, and provides tools required for large, robust applications.
 
+## Learning Laravel
 
-2. Préparer la base de données
-Ouvrez MySQL Workbench ou phpMyAdmin fourni avec AMPPS.
-Créez une base de données pour LocalHub, par exemple :
-CREATE DATABASE localhub_bd;
+Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework. You can also check out [Laravel Learn](https://laravel.com/learn), where you will be guided through building a modern Laravel application.
 
-Importez ensuite le script SQL d'initialisation présent dans le projet afin de créer les tables et les données nécessaires.
-Le nom de la base de données doit correspondre à celui utilisé dans la configuration de connexion PHP du projet.
+If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
 
-### ⚙️ Configuration d'Apache
-Pour rendre l'application accessible depuis une URL locale stable, un alias Apache peut être configuré.
-1. Ouvrir la configuration Apache
-Dans AMPPS, ouvrez le fichier :
-httpd.conf
+## Laravel Sponsors
 
-2. Ajouter l'alias
-Ajoutez le bloc suivant en adaptant le chemin selon l'emplacement du projet :
-Alias /localhub "C:/chemin/vers/LocalHub"
+We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
 
-<Directory "C:/chemin/vers/LocalHub">
-    Options -Indexes +FollowSymLinks
-    AllowOverride All
-    Require all granted
-</Directory>
+### Premium Partners
 
-3. Redémarrer Apache
-Après avoir enregistré les modifications, redémarrez Apache depuis le panneau de contrôle AMPPS.
+- **[Vehikl](https://vehikl.com)**
+- **[Tighten Co.](https://tighten.co)**
+- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
+- **[64 Robots](https://64robots.com)**
+- **[Curotec](https://www.curotec.com/services/technologies/laravel)**
+- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
+- **[Redberry](https://redberry.international/laravel-development)**
+- **[Active Logic](https://activelogic.com)**
 
-## ▶️ Démarrage
-1. Démarrer les services
-Ouvrez AMPPS et démarrez :
-Apache
-MySQL
-2. Accéder à LocalHub
-Ouvrez votre navigateur et rendez-vous à :
-http://localhost/localhub/
+## Contributing
 
-Si vous utilisez une autre configuration Apache, l'URL peut varier selon l'alias configuré.
+Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
 
-## 🗄️ Structure générale
-L'application repose sur plusieurs types de données reliées afin de gérer les interactions entre les membres de la communauté.
-Une représentation simplifiée du système est :
-Utilisateur
-    │
-    ├── Publications
-    │      ├── Demande d'aide
-    │      ├── Service
-    │      ├── Objet
-    │      └── Activité
-    │
-    ├── Interactions
-    │      ├── Demandes
-    │      ├── Réservations
-    │      └── Participations
-    │
-    ├── Messages
-    │
-    └── Évaluations
+## Code of Conduct
 
-Les opérations transactionnelles permettent notamment de créer, modifier, réserver, accepter, refuser ou compléter différentes interactions entre utilisateurs.
+In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
 
-🧪 Développement
-Aucune compilation ou étape de build n'est nécessaire.
-Le projet utilise PHP côté serveur avec HTML et CSS pour l'interface.
-Après toute modification du code, il suffit de recharger la page dans le navigateur.
+## Security Vulnerabilities
 
-📁 Structure du projet
-La structure peut évoluer au cours du développement, mais le projet suit une modele d'organisation MVC permettant de séparer notamment :
-LocalHub/
-├── config/
-├── Controleurs/
-├── css/
-├── database/
-├── docs/
-├── img/
-├── maquettes/
-├── Modeles/
-├── Vues/
-├── index.php
-├── recits.php
-└── README.md
+If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
 
+## License
 
-## 🎯 Objectif du projet
-LocalHub est développé dans le cadre d'un projet individuel de développement d'applications Web transactionnelles.
-Le projet met en pratique :
-la gestion des utilisateurs;
-l'authentification;
-la gestion de plusieurs types de données;
-les relations entre les données;
-les opérations CRUD;
-les transactions;
-la gestion des demandes et réservations;
-la persistance des données avec MySQL;
-la génération dynamique de pages avec PHP.
-À plus long terme, LocalHub pourrait évoluer vers une véritable plateforme communautaire permettant aux utilisateurs d'interagir avec leur communauté locale au-delà du cadre académique.
-
-📌 Statut
-Projet en développement — Version 0.x
-Les fonctionnalités, l'architecture et l'interface sont susceptibles d'évoluer pendant le développement.
-
-📄 Licence
-Projet académique — tous droits réservés, sauf indication contraire.
-
-
+The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
