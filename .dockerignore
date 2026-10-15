@@ -1,6 +1,12 @@
 .git
 .env*
 .vscode
-node_modules
+auth.json
 vendor
-*.log
+node_modules
+public/storage
+database/*.sqlite*
+storage/logs/*
+storage/framework/cache/*
+storage/framework/sessions/*
+storage/framework/views/*
