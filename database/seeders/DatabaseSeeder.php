@@ -2,7 +2,9 @@
 
 namespace Database\Seeders;
 
-use App\Models\Utilisateur;
+use App\Models\User;
+use App\Models\Publication;
+use App\Models\Reservation;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
 
@@ -30,18 +32,25 @@ class DatabaseSeeder extends Seeder
             ['nom' => 'Côté', 'prenom' => 'Maxime', 'courriel' => 'maxime.cote@localhub.test', 'ville' => 'Montréal'],
         ];
 
-        foreach ($utilisateurs as $utilisateur) {
-            Utilisateur::updateOrCreate(
-                ['courriel' => $utilisateur['courriel']],
+        foreach ($utilisateurs as $utilisateurData) {
+            $utilisateur = User::updateOrCreate(
+                ['courriel' => $utilisateurData['courriel']],
                 [
-                    'nom' => $utilisateur['nom'],
-                    'prenom' => $utilisateur['prenom'],
-                    'ville' => $utilisateur['ville'],
-                    // All demo accounts share this password for local testing.
-                    // The `hashed` cast on Utilisateur keeps this a single hash.
+                    'nom' => $utilisateurData['nom'],
+                    'prenom' => $utilisateurData['prenom'],
+                    'ville' => $utilisateurData['ville'],
                     'mot_de_passe' => Hash::make('password'),
                 ],
             );
+
+            Publication::factory()
+                ->count(3)
+                ->has(Reservation::factory()->count(2), 'reservations')
+                ->create(['id_utilisateur' => $utilisateur->id_utilisateur]);
+
+            Publication::factory()
+                ->nonPublie()
+                ->create(['id_utilisateur' => $utilisateur->id_utilisateur]);
         }
     }
 }
