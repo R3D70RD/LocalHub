@@ -1,10 +1,10 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use App\Http\Controller\PublicationController;
+use App\Http\Controllers\PublicationController;
 
 Route::get('/', function () {
     return view('welcome');
 });
 
-Route::resource('publication', PublicationController::class);
+Route::resource('publications', PublicationController::class);

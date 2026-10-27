@@ -3,8 +3,11 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Contracts\View\View;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use app\Models\Publication;
+use App\Models\Publication;
+use App\Models\User;
+use App\Http\Requests\EnregistrerPublicationRequest;
 
 class PublicationController extends Controller
 {
@@ -13,13 +16,13 @@ class PublicationController extends Controller
      */
     public function index(): View
     {
-        $publication = Publication::query()
-            ->with('utilisateur:id,name')
+        $publications = Publication::query()
+            ->with('utilisateur:id_utilisateur,nom')
             ->whereNotNull('date_creation')
             ->latest('date_creation')
             ->paginate(10);
 
-        return view('publication.index', compact('publication'));
+        return view('publications.index', compact('publications'));
     }
 
     /**
@@ -27,15 +30,24 @@ class PublicationController extends Controller
      */
     public function create()
     {
-        //
+        return view('publications.create');
     }
 
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(EnregistrerPublicationRequest $request): RedirectResponse
     {
-        //
+        $user = User::query()->firstOrFail();
+
+        $publication = Publication::create([
+            ...$request->validated(),
+            'id_utilisateur' => $user->id_utilisateur,
+            'date_creation' => now(),
+        ]);
+
+        return redirect()->route('publications.show', $publication)
+            ->with('status', 'publication créé.');
     }
 
     /**
@@ -45,32 +57,38 @@ class PublicationController extends Controller
     {
         abort_if($publication->date_creation === null, 404);
 
-        return view('publication.show', [
-            'publication' => $publication->load('utilisateur', 'description'),
+        return view('publications.show', [
+            'publication' => $publication->load('utilisateur', 'category'),
         ]);
     }
 
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(string $id)
+    public function edit(Publication $publication): View
     {
-        //
+        return view('publications.edit', compact('publication'));
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $id)
+    public function update(EnregistrerPublicationRequest $request, Publication $publication): RedirectResponse
     {
-        //
+        $publication->update($request->validated());
+
+        return redirect()->route('publications.show', $publication)
+            ->with('status', 'publication modifié.');
     }
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(string $id)
+    public function destroy(Publication $publication): RedirectResponse
     {
-        //
+        $publication->delete();
+
+        return redirect()->route('publications.index')
+            ->with('status', 'publication supprimé.');
     }
 }
