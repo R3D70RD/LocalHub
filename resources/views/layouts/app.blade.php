@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
-    <title>@yield('title', config('app.name', 'Laravel'))</title>
+    <title>@yield('title', config('app.name', 'LocalHub'))</title>
 
     <link rel="preconnect" href="https://fonts.bunny.net">
     <link href="https://fonts.bunny.net/css?family=instrument-sans:400,500,600" rel="stylesheet" />
@@ -16,7 +16,7 @@
     <header class="border-b border-slate-200 bg-white">
         <div class="mx-auto flex max-w-5xl items-center justify-between px-4 py-3">
             <a href="{{ url('/') }}" class="text-lg font-semibold text-slate-900">
-                {{ config('app.name', 'Laravel') }}
+                {{ config('app.name', 'LocalHub') }}
             </a>
             <nav class="flex items-center gap-3 text-sm">
                 <a href="{{ route('publications.index') }}"
