@@ -1,4 +1,4 @@
-<article>
+<publication>
     <h1>{{ $publication->titre }}</h1>
     <p>Par {{ $publication->utilisateur->nom }}</p>
     <p>{{ $publication->description }}</p>
@@ -9,7 +9,13 @@
         <button type="submit">Supprimer</button>
     </form>
 
+    @if ($publication->image_path)
+    <img src="{{ Storage::disk('public')->url($publication->image_path) }}"
+         alt="{{ $publication->titre }}">
+    @endif
+
+
     @if (session('status'))
         <p>{{ session('status') }}</p>
     @endif
-</article>
+</publication>
