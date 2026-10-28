@@ -4,9 +4,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\PublicationController;
 use App\Http\Controllers\RecherchePublicationController;
 
-Route::get('/', function () {
-    return view('welcome');
-});
+Route::redirect('/', '/publications');
 
 Route::resource('publications', PublicationController::class);
 

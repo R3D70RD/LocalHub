@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
+use App\Models\Publication;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
@@ -22,13 +22,13 @@ class RecherchePublicationController extends Controller
             ->where('titre', 'like', '%'.$data['q'].'%')
             ->orderBy('titre')
             ->limit(8)
-            ->get(['id', 'titre']);
+            ->get(['id_publication', 'titre']);
 
         return response()->json([
-            'data' => $publications->map(fn (Publication $publications) => [
-                'id' => $publications->id,
+            'data' => $publications->map(fn (Publication $publication) => [
+                'id' => $publication->id_publication,
                 'label' => $publication->titre,
-                'url' => route('publications.show', $publications),
+                'url' => route('publications.show', $publication),
             ]),
         ]);
     }

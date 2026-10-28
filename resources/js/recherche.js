@@ -1,8 +1,8 @@
 const input = document.querySelector('#search');
 const results = document.querySelector('#search-results');
-const status = document.querySelector('#search-status');
+const statusEl = document.querySelector('#search-status');
 
-if (input && results && status) {
+if (input && results && statusEl) {
     let timer;
     let controller;
 
@@ -13,11 +13,11 @@ if (input && results && status) {
 
         const term = input.value.trim();
         if (term.length < 2) {
-            status.textContent = '';
+            statusEl.textContent = '';
             return;
         }
 
-        status.textContent = input.dataset.searching;
+        statusEl.textContent = input.dataset.searching;
         timer = setTimeout(async () => {
             controller = new AbortController();
 
@@ -32,14 +32,17 @@ if (input && results && status) {
                 if (!response.ok) throw new Error('Recherche indisponible');
 
                 const payload = await response.json();
-                status.textContent = payload.data.length
-                    ? input.dataset.count.replace(':count', payload.data.length)
+                const items = Array.isArray(payload.data) ? payload.data : [];
+
+                statusEl.textContent = items.length
+                    ? input.dataset.count.replace(':count', items.length)
                     : input.dataset.empty;
 
-                for (const item of payload.data) {
+                for (const item of items) {
                     const link = document.createElement('a');
                     link.href = item.url;
                     link.textContent = item.label;
+                    link.className = 'block py-2 text-sm text-slate-800 hover:text-slate-900 hover:underline';
 
                     const row = document.createElement('li');
                     row.append(link);
@@ -47,7 +50,7 @@ if (input && results && status) {
                 }
             } catch (error) {
                 if (error.name !== 'AbortError') {
-                    status.textContent = input.dataset.error;
+                    statusEl.textContent = input.dataset.error;
                 }
             }
         }, 250);
