@@ -23,10 +23,6 @@
                    class="rounded-md px-3 py-1.5 text-slate-600 hover:bg-slate-100 hover:text-slate-900">
                     Publications
                 </a>
-                <a href="{{ route('publications.create') }}"
-                   class="rounded-md bg-slate-900 px-3 py-1.5 font-medium text-white hover:bg-slate-700">
-                    Nouvelle publication
-                </a>
             </nav>
         </div>
     </header>
