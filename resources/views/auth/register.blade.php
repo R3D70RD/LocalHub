@@ -61,6 +61,10 @@
                            autocomplete="new-password" required>
                 </div>
 
+                <div class="g-recaptcha" data-sitekey="{{ config('services.recaptcha.site_key') }}"></div>
+@error('g-recaptcha-response') <p>{{ $message }}</p> @enderror
+
+
                 <button type="submit" class="btn-primary">Créer le compte</button>
             </form>
 
