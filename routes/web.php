@@ -56,6 +56,12 @@ Route::get('/', [PublicationController::class, 'index'])->name('home');
 Route::get('/compte', [CompteController::class, 'show'])
     ->middleware('auth')->name('account.show');
 
+Route::put('/compte/mot-de-passe', [CompteController::class, 'updatePassword'])
+    ->middleware('auth')->name('account.password.update');
+
+Route::delete('/compte', [CompteController::class, 'destroy'])
+    ->middleware('auth')->name('account.destroy');
+
 
 // admin
 Route::middleware(['auth', EnsureManager::class])->group(function () {
