@@ -2,6 +2,7 @@
 
 namespace Database\Factories;
 
+use App\Enums\PublicationType;
 use App\Models\User;
 use App\Models\Publication;
 use App\Models\Category;
@@ -26,7 +27,7 @@ class PublicationFactory extends Factory
             'id_categorie' => Category::factory(), // Picks an existing category ID
             'titre' => fake()->text(100), // Respects the VARCHAR(150) limit (in characters)
             'description' => fake()->paragraph(), // Perfect for TEXT columns
-            'type' => fake()->randomElement(['outil', 'aide', 'service', 'objet', 'activite']), 
+            'type' => fake()->randomElement(PublicationType::cases()),
             'prix' => fake()->optional()->randomFloat(2, 10, 150), // Nullable decimal for tools/help, priced for items/services
             'ville' => fake()->city(), 
             'date_creation' => now(), 

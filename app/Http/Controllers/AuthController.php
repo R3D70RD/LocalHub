@@ -21,7 +21,10 @@ class AuthController extends Controller
             'mot_de_passe' => ['required', 'string'],
         ]);
 
-        if (! Auth::attempt($credentials)) {
+        if (! Auth::attempt([
+            'courriel' => $credentials['courriel'],
+            'password' => $credentials['mot_de_passe'],
+        ])) {
             return back()
                 ->withErrors(['courriel' => 'Identifiants invalides.'])
                 ->onlyInput('courriel');
