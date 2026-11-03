@@ -9,21 +9,25 @@
                 <h1 class="text-2xl font-semibold text-slate-900">{{ $publication->titre }}</h1>
                 <p class="mt-1 text-sm text-slate-500">Par {{ $publication->utilisateur->nom }}</p>
             </div>
-            <div class="flex items-center gap-2">
-                <a href="{{ route('publications.edit', $publication) }}"
-                   class="rounded-md border border-slate-300 px-3 py-1.5 text-sm text-slate-700 hover:bg-slate-100">
-                    Modifier
-                </a>
-                <form method="post" action="{{ route('publications.destroy', $publication) }}"
-                      onsubmit="return confirm('Supprimer cette publication ?');">
-                    @csrf
-                    @method('DELETE')
-                    <button type="submit"
-                            class="rounded-md bg-rose-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-rose-500">
-                        Supprimer
-                    </button>
-                </form>
-            </div>
+            @auth
+                @if (auth()->id() === $publication->id_utilisateur)
+                    <div class="flex items-center gap-2">
+                        <a href="{{ route('publications.edit', $publication) }}"
+                           class="rounded-md border border-slate-300 px-3 py-1.5 text-sm text-slate-700 hover:bg-slate-100">
+                            Modifier
+                        </a>
+                        <form method="post" action="{{ route('publications.destroy', $publication) }}"
+                              onsubmit="return confirm('Supprimer cette publication ?');">
+                            @csrf
+                            @method('DELETE')
+                            <button type="submit"
+                                    class="rounded-md bg-rose-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-rose-500">
+                                Supprimer
+                            </button>
+                        </form>
+                    </div>
+                @endif
+            @endauth
         </div>
 
         @if ($publication->image_path)

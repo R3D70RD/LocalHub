@@ -7,10 +7,24 @@ use App\Http\Controllers\PublicationController;
 use App\Http\Controllers\RecherchePublicationController;
 use App\Http\Controllers\InscriptionController;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\CompteController;
+use App\Http\Middleware\EnsureManager;
 
 Route::redirect('/', '/publications');
 
-Route::resource('publications', PublicationController::class);
+Route::resource('publications', PublicationController::class)
+    ->only(['index']);
+
+Route::resource('publications', PublicationController::class)
+    ->only(['create', 'store'])
+    ->middleware('auth');
+
+Route::resource('publications', PublicationController::class)
+    ->only(['show']);
+
+Route::resource('publications', PublicationController::class)
+    ->only(['edit', 'update', 'destroy'])
+    ->middleware('auth');
 
 Route::get('/recherche/publications', RecherchePublicationController::class)
     ->name('recherche.publications');
@@ -41,3 +55,17 @@ Route::post('/connexion', [AuthController::class, 'login'])
 
 Route::post('/deconnexion', [AuthController::class, 'logout'])
     ->middleware('auth')->name('logout');
+
+// compte
+
+Route::get('/', [PublicationController::class, 'index'])->name('home');
+
+Route::get('/compte', [CompteController::class, 'show'])
+    ->middleware('auth')->name('account.show');
+
+
+// admin
+Route::middleware(['auth', EnsureManager::class])->group(function () {
+    Route::get('/administration', fn () => 'Administration')
+        ->name('admin.index');
+});

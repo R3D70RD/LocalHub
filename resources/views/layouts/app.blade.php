@@ -25,6 +25,10 @@
                 </a>
 
                 @auth
+                    <a href="{{ route('account.show') }}"
+                       class="rounded-md px-3 py-1.5 text-slate-600 hover:bg-slate-100 hover:text-slate-900">
+                        Mon compte
+                    </a>
                     <form method="post" action="{{ route('logout') }}">
                         @csrf
                         <button type="submit"
