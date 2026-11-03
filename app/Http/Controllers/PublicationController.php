@@ -9,6 +9,8 @@ use App\Models\Publication;
 use App\Http\Requests\EnregistrerPublicationRequest;
 use Illuminate\Support\Facades\Storage;
 use Throwable;
+use Illuminate\Support\Facades\Gate;
+
 
 class PublicationController extends Controller
 {
@@ -77,7 +79,7 @@ class PublicationController extends Controller
      */
     public function edit(Publication $publication): View
     {
-        $this->authorizeOwner($publication);
+        Gate::authorize('update', $publication);
 
         return view('publications.edit', compact('publication'));
     }
@@ -87,7 +89,7 @@ class PublicationController extends Controller
      */
     public function update(EnregistrerPublicationRequest $request, Publication $publication): RedirectResponse
     {
-        $this->authorizeOwner($publication);
+        Gate::authorize('update', $publication);
 
         $data = $request->safe()->except('image');
         $newPath = $request->file('image')?->store('publications', 'public');
@@ -118,7 +120,7 @@ class PublicationController extends Controller
      */
     public function destroy(Publication $publication): RedirectResponse
     {
-        $this->authorizeOwner($publication);
+        Gate::authorize('delete', $publication);
 
         $publication->delete();
 

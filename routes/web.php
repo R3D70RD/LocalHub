@@ -13,17 +13,10 @@ use App\Http\Middleware\EnsureManager;
 Route::redirect('/', '/publications');
 
 Route::resource('publications', PublicationController::class)
-    ->only(['index']);
+    ->only(['index', 'show']);
 
 Route::resource('publications', PublicationController::class)
-    ->only(['create', 'store'])
-    ->middleware('auth');
-
-Route::resource('publications', PublicationController::class)
-    ->only(['show']);
-
-Route::resource('publications', PublicationController::class)
-    ->only(['edit', 'update', 'destroy'])
+    ->only(['create', 'store', 'edit', 'update', 'destroy'])
     ->middleware('auth');
 
 Route::get('/recherche/publications', RecherchePublicationController::class)
