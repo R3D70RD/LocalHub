@@ -24,7 +24,8 @@ class PublicationFactory extends Factory
     {
         return [
             'id_utilisateur' => User::factory(), // Automatically creates a user or links one
-            'id_categorie' => Category::factory(), // Picks an existing category ID
+            'id_categorie' => Category::query()->inRandomOrder()->value('id_categorie')
+                ?? Category::factory(),
             'titre' => fake()->text(100), // Respects the VARCHAR(150) limit (in characters)
             'description' => fake()->paragraph(), // Perfect for TEXT columns
             'type' => fake()->randomElement(PublicationType::cases()),

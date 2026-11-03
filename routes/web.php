@@ -66,6 +66,8 @@ Route::get('/compte', [CompteController::class, 'show'])
 
 // admin
 Route::middleware(['auth', EnsureManager::class])->group(function () {
-    Route::get('/administration', fn () => 'Administration')
+    Route::get('/administration', [\App\Http\Controllers\AdminController::class, 'index'])
         ->name('admin.index');
+    Route::delete('/administration/images/{publication}', [\App\Http\Controllers\AdminController::class, 'destroyImage'])
+        ->name('admin.images.destroy');
 });

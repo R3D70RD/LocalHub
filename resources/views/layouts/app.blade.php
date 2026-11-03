@@ -25,6 +25,12 @@
                 </a>
 
                 @auth
+                    @if (auth()->user()?->role === \App\Models\User::ROLE_MANAGER)
+                        <a href="{{ route('admin.index') }}"
+                           class="rounded-md bg-amber-500 px-3 py-1.5 font-medium text-white hover:bg-amber-600">
+                            Administration
+                        </a>
+                    @endif
                     <a href="{{ route('account.show') }}"
                        class="rounded-md px-3 py-1.5 text-slate-600 hover:bg-slate-100 hover:text-slate-900">
                         Mon compte
