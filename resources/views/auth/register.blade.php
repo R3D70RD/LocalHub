@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('titre', 'Inscription')
+@section('title', 'Inscription')
 
 @section('content')
     <div class="auth-wrapper">
@@ -63,6 +63,10 @@
 
                 <button type="submit" class="btn-primary">Créer le compte</button>
             </form>
+
+            <p class="auth-footer">
+                Déjà un compte ? <a href="{{ route('login') }}">Se connecter</a>
+            </p>
         </div>
     </div>
 @endsection

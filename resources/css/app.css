@@ -15,7 +15,6 @@
         justify-content: center;
         min-height: calc(100vh - 4rem);
         padding: 2rem 1rem;
-        background: linear-gradient(180deg, #f9fafb 0%, #eef2ff 100%);
     }
 
     .auth-card {

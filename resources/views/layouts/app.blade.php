@@ -23,6 +23,25 @@
                    class="rounded-md px-3 py-1.5 text-slate-600 hover:bg-slate-100 hover:text-slate-900">
                     Publications
                 </a>
+
+                @auth
+                    <form method="post" action="{{ route('logout') }}">
+                        @csrf
+                        <button type="submit"
+                                class="rounded-md px-3 py-1.5 text-slate-600 hover:bg-slate-100 hover:text-slate-900">
+                            Se déconnecter
+                        </button>
+                    </form>
+                @else
+                    <a href="{{ route('login') }}"
+                       class="rounded-md px-3 py-1.5 text-slate-600 hover:bg-slate-100 hover:text-slate-900">
+                        Connexion
+                    </a>
+                    <a href="{{ route('register') }}"
+                       class="rounded-md bg-indigo-600 px-3 py-1.5 font-medium text-white hover:bg-indigo-700">
+                        Inscription
+                    </a>
+                @endauth
             </nav>
         </div>
     </header>
