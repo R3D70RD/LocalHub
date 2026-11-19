@@ -16,10 +16,14 @@ return new class extends Migration
             $table->string('prenom', 100);
             $table->string('courriel', 255)->unique();
             $table->string('mot_de_passe', 255);
-            $table->string('ville', 100);
+            $table->string('ville', 100)->nullable();
+            $table->string('role', 30)->default('member');
+            $table->string('avatar_path')->nullable();
+            $table->text('bio')->nullable();
+            $table->text('presentation')->nullable();
             $table->timestamp('date_inscription')->useCurrent();
             $table->rememberToken();
-            $table->timestamps(); 
+            $table->timestamps();
         });
 
         Schema::create('password_reset_tokens', function (Blueprint $table) {

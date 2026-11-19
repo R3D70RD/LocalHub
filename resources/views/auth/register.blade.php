@@ -49,6 +49,20 @@
                 </div>
 
                 <div class="form-group">
+                    <label for="telephone">Téléphone</label>
+                    <input id="telephone" name="telephone" type="tel"
+                           value="{{ old('telephone') }}"
+                           autocomplete="tel" maxlength="30">
+                    @error('telephone') <p class="form-error">{{ $message }}</p> @enderror
+                </div>
+
+                <div class="form-group">
+                    <label for="bio">Bio</label>
+                    <textarea id="bio" name="bio" rows="3" maxlength="1000">{{ old('bio') }}</textarea>
+                    @error('bio') <p class="form-error">{{ $message }}</p> @enderror
+                </div>
+
+                <div class="form-group">
                     <label for="mot_de_passe">Mot de passe</label>
                     <input id="mot_de_passe" name="mot_de_passe" type="password"
                            autocomplete="new-password" required>

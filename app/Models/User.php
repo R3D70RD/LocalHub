@@ -23,6 +23,10 @@ class User extends Authenticatable
         'courriel',
         'mot_de_passe',
         'ville',
+        'role',
+        'avatar_path',
+        'bio',
+        'presentation',
     ];
 
     protected $hidden = [

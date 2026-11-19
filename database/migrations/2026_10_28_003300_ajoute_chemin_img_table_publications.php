@@ -11,9 +11,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('publication', function (Blueprint $table) {
-        $table->string('image_path')->nullable();
-        });
+        // image_path is now part of the base publications migration.
     }
 
     /**
@@ -21,8 +19,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('publications', function (Blueprint $table) {
-        $table->dropColumn('image_path');
-        });
+        // No-op: image_path is handled by the base publications migration.
     }
 };

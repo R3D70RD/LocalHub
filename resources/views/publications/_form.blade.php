@@ -1,5 +1,4 @@
 @php
-    use App\Enums\PublicationType;
     use App\Models\Category;
 
     $inputClass = 'w-full rounded-md border border-slate-300 px-3 py-2 text-sm shadow-sm focus:border-slate-500 focus:outline-none focus:ring-1 focus:ring-slate-500';
@@ -7,7 +6,6 @@
     $errorClass = 'mt-1 text-sm text-rose-600';
 
     $categories = Category::orderBy('nom')->get();
-    $currentType = old('type', $publication?->type?->value ?? $publication?->type);
     $currentCategorie = old('id_categorie', $publication?->id_categorie);
 @endphp
 
@@ -26,19 +24,6 @@
 
     <div class="grid gap-5 sm:grid-cols-2">
         <div>
-            <label for="type" class="{{ $labelClass }}">Type</label>
-            <select id="type" name="type" class="{{ $inputClass }}">
-                <option value="">Sélectionner un type</option>
-                @foreach (PublicationType::cases() as $type)
-                    <option value="{{ $type->value }}" @selected($currentType === $type->value)>
-                        {{ $type->label() }}
-                    </option>
-                @endforeach
-            </select>
-            @error('type') <p class="{{ $errorClass }}">{{ $message }}</p> @enderror
-        </div>
-
-        <div>
             <label for="prix" class="{{ $labelClass }}">Prix</label>
             <input id="prix" name="prix" type="number" step="0.01" value="{{ old('prix', $publication?->prix) }}" class="{{ $inputClass }}">
             @error('prix') <p class="{{ $errorClass }}">{{ $message }}</p> @enderror
@@ -48,6 +33,14 @@
             <label for="ville" class="{{ $labelClass }}">Ville</label>
             <input id="ville" name="ville" value="{{ old('ville', $publication?->ville) }}" class="{{ $inputClass }}">
             @error('ville') <p class="{{ $errorClass }}">{{ $message }}</p> @enderror
+        </div>
+
+        <div>
+            <label for="date_heure" class="{{ $labelClass }}">Date et heure (événements)</label>
+            <input id="date_heure" name="date_heure" type="datetime-local"
+                   value="{{ old('date_heure', $publication?->date_heure?->format('Y-m-d\TH:i')) }}"
+                   class="{{ $inputClass }}">
+            @error('date_heure') <p class="{{ $errorClass }}">{{ $message }}</p> @enderror
         </div>
 
         <div>

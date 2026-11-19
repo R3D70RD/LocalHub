@@ -2,7 +2,6 @@
 
 namespace App\Models;
 
-use App\Enums\PublicationType;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -16,23 +15,23 @@ class Publication extends Model
     protected $primaryKey = 'id_publication';
 
     protected $fillable = [
-        'titre', 
-        'description', 
-        'type', 
-        'prix', 
-        'ville', 
-        'date_creation', 
-        'id_utilisateur', 
+        'titre',
+        'description',
+        'prix',
+        'ville',
+        'date_heure',
+        'date_creation',
+        'id_utilisateur',
         'id_categorie',
         'image_path',
-        'statut'
+        'statut',
     ];
 
     protected function casts(): array {
         return [
             'date_creation' => 'datetime',
+            'date_heure' => 'datetime',
             'prix' => 'decimal:2',
-            'type' => PublicationType::class,
         ];
     }
 
@@ -51,17 +50,12 @@ class Publication extends Model
                      ->orderBy('date_creation', 'desc');
     }
 
-    public function scopeOutils($query, ?string $ville = null)
+    public function scopeInCategory($query, int $idCategorie)
     {
-        $query->where('type', 'outil')
-              ->where('statut', 'active')
-              ->with(['utilisateur', 'category']);
-
-        if ($ville !== null) {
-            $query->where('ville', 'LIKE', '%' . $ville . '%');
-        }
-
-        return $query->orderBy('date_creation', 'desc');
+        return $query->where('id_categorie', $idCategorie)
+                     ->where('statut', 'active')
+                     ->with(['utilisateur', 'category'])
+                     ->orderBy('date_creation', 'desc');
     }
 
     public function reservations(): HasMany {

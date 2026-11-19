@@ -29,6 +29,8 @@ class InscriptionController extends Controller
             'prenom' => ['required', 'string', 'max:100'],
             'courriel' => ['required', 'email', 'max:255', 'unique:utilisateur,courriel'],
             'ville' => ['required', 'string', Rule::in(Villes::QUEBEC)],
+            'telephone' => ['nullable', 'string', 'max:30'],
+            'bio' => ['nullable', 'string', 'max:1000'],
             'mot_de_passe' => ['required', 'confirmed', Password::min(8)],
         ]);
 
@@ -61,6 +63,8 @@ if (! $verification->successful() || $verification->json('success') !== true) {
             'prenom' => $data['prenom'],
             'courriel' => $data['courriel'],
             'ville' => $data['ville'],
+            'telephone' => $data['telephone'] ?? null,
+            'bio' => $data['bio'] ?? null,
             'mot_de_passe' => $data['mot_de_passe'],
         ]);
         Auth::login($user);

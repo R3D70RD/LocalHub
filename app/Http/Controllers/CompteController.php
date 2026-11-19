@@ -19,6 +19,20 @@ class CompteController extends Controller
         ]);
     }
 
+    public function updateProfile(Request $request): RedirectResponse
+    {
+        $data = $request->validate([
+            'prenom' => ['required', 'string', 'max:100'],
+            'nom' => ['required', 'string', 'max:100'],
+            'telephone' => ['nullable', 'string', 'max:30'],
+            'bio' => ['nullable', 'string', 'max:1000'],
+        ]);
+
+        $request->user()->update($data);
+
+        return back()->with('status', 'Profil mis à jour.');
+    }
+
     public function updatePassword(Request $request): RedirectResponse
     {
         $data = $request->validate([
