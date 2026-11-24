@@ -2,10 +2,8 @@
 
 namespace App\Http\Requests;
 
-use App\Enums\PublicationType;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
-use Illuminate\Validation\Rule;
 
 class EnregistrerPublicationRequest extends FormRequest
 {
@@ -27,12 +25,12 @@ class EnregistrerPublicationRequest extends FormRequest
         return [
             'titre' => ['required', 'string', 'max:120'],
             'description' => ['required', 'string', 'max:5000'],
-            'type' => ['required', Rule::enum(PublicationType::class)],
-            'prix' => ['required', 'numeric'],
-            'ville' => ['required', 'string', 'max:50'],
+            'prix' => ['nullable', 'numeric', 'min:0'],
+            'ville' => ['nullable', 'string', 'max:100'],
+            'date_heure' => ['nullable', 'date'],
             'id_categorie' => ['required', 'integer', 'exists:categorie,id_categorie'],
             'image' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:2048'],
-            'statut' => ['required', 'string', 'max:10'],
+            'statut' => ['required', 'string', 'max:30'],
         ];
     }
 }

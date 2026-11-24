@@ -17,6 +17,7 @@ class UserFactory extends Factory
             'courriel' => fake()->unique()->safeEmail(),
             'mot_de_passe' => 'password',
             'ville' => fake()->city(),
+            'locale' => 'fr',
             'bio' => fake()->optional()->paragraph(),
             'telephone' => fake()->optional()->numerify('###-###-####'),
             'date_inscription' => now(),

@@ -2,10 +2,13 @@
 
 namespace App\Models;
 
+use App\Enums\Langue;
+use App\Enums\PrecisionLocalisation;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
-use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class User extends Authenticatable
 {
@@ -13,7 +16,8 @@ class User extends Authenticatable
 
     protected $table = 'utilisateur';
     protected $primaryKey = 'id_utilisateur';
-    public $timestamps = false; 
+    public $timestamps = false;
+
     public const ROLE_MEMBER = 'member';
     public const ROLE_MANAGER = 'manager';
 
@@ -22,7 +26,16 @@ class User extends Authenticatable
         'prenom',
         'courriel',
         'mot_de_passe',
+        'telephone',
         'ville',
+        'locale',
+        'id_ville',
+        'id_quartier',
+        'latitude',
+        'longitude',
+        'geohash',
+        'precision_pref',
+        'fiabilite',
         'role',
         'avatar_path',
         'bio',
@@ -37,6 +50,11 @@ class User extends Authenticatable
     {
         return [
             'mot_de_passe' => 'hashed',
+            'locale' => Langue::class,
+            'precision_pref' => PrecisionLocalisation::class,
+            'latitude' => 'float',
+            'longitude' => 'float',
+            'fiabilite' => 'integer',
         ];
     }
 
@@ -52,7 +70,18 @@ class User extends Authenticatable
         return 'mot_de_passe';
     }
 
-    public function publications(): HasMany {
+    public function publications(): HasMany
+    {
         return $this->hasMany(Publication::class, 'id_utilisateur', 'id_utilisateur');
+    }
+
+    public function ville(): BelongsTo
+    {
+        return $this->belongsTo(Ville::class, 'id_ville', 'id_ville');
+    }
+
+    public function quartier(): BelongsTo
+    {
+        return $this->belongsTo(Quartier::class, 'id_quartier', 'id_quartier');
     }
 }

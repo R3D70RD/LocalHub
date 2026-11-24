@@ -2,32 +2,31 @@
 
 namespace Database\Seeders;
 
-use App\Models\User;
 use App\Models\Publication;
 use App\Models\Reservation;
+use App\Models\User;
+use App\Models\Ville;
+use App\Support\Geohash;
+use Database\Seeders\CategorySeeder;
+use Database\Seeders\GeoSeeder;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
-use Database\Seeders\CategorySeeder;
 
 class DatabaseSeeder extends Seeder
 {
     /**
      * Seed the application's database.
      *
-     * This replaces the default Laravel seeder, which targeted the `users`
-     * table (name/email/password). That table does not exist in
-     * database/init/01-localhubScript.sql, so the old User::factory() call
-     * would fail. We seed the `utilisateur` table instead.
-     *
-     * updateOrCreate() keeps this idempotent: it will also REPAIR the demo
-     * rows if 01-localhubScript.sql already inserted them with the plaintext
-     * password 'TEMPORAIRE', replacing it with a proper bcrypt hash.
+     * Order matters: the geographic reference data must exist before we can
+     * link seeded users to a real city. `updateOrCreate()` keeps everything
+     * idempotent, so this seeder can repair demo rows on re-run.
      */
     public function run(): void
     {
+        $this->call(GeoSeeder::class);
         $this->call(CategorySeeder::class);
 
-        User::updateOrCreate(
+        $admin = User::updateOrCreate(
             ['courriel' => config('admin.email')],
             [
                 'nom' => config('admin.nom'),
@@ -37,6 +36,7 @@ class DatabaseSeeder extends Seeder
                 'role' => User::ROLE_MANAGER,
             ],
         );
+        $this->localiser($admin);
 
         $utilisateurs = [
             ['nom' => 'Tremblay', 'prenom' => 'Alex', 'courriel' => 'alex.tremblay@localhub.test', 'ville' => 'Montréal'],
@@ -57,6 +57,8 @@ class DatabaseSeeder extends Seeder
                 ],
             );
 
+            $this->localiser($utilisateur);
+
             Publication::factory()
                 ->count(3)
                 ->has(Reservation::factory()->count(2), 'reservations')
@@ -66,5 +68,26 @@ class DatabaseSeeder extends Seeder
                 ->nonPublie()
                 ->create(['id_utilisateur' => $utilisateur->id_utilisateur]);
         }
+    }
+
+    /**
+     * Relie un utilisateur semé à sa ville structurée et calcule son geohash.
+     */
+    private function localiser(User $utilisateur): void
+    {
+        $ville = Ville::query()->where('nom_fr', $utilisateur->ville)->first();
+
+        if ($ville === null) {
+            return;
+        }
+
+        $utilisateur->forceFill([
+            'id_ville' => $ville->id_ville,
+            'latitude' => $ville->latitude,
+            'longitude' => $ville->longitude,
+            'geohash' => ($ville->latitude !== null && $ville->longitude !== null)
+                ? Geohash::encode((float) $ville->latitude, (float) $ville->longitude, 7)
+                : null,
+        ])->save();
     }
 }
