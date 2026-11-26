@@ -15,14 +15,15 @@ class PublicationCreationTest extends TestCase
     public function test_un_utilisateur_authentifie_peut_creer_une_publication(): void
     {
         $utilisateur = User::factory()->create();
-        $categorie = Category::create(['nom' => 'Objets et Matériel']);
+        $categorie = Category::create(['nom' => 'Outils', 'slug' => 'outils']);
 
         $reponse = $this->actingAs($utilisateur)->post(route('publications.store'), [
             'titre' => 'Tondeuse à prêter',
             'description' => 'Disponible pour le voisinage.',
             'prix' => 0,
-            'ville' => 'Montréal',
             'id_categorie' => $categorie->id_categorie,
+            'lang' => 'fr',
+            'portee' => 'quartier',
             'statut' => 'active',
         ]);
 
@@ -31,20 +32,21 @@ class PublicationCreationTest extends TestCase
         $this->assertDatabaseHas('publication', [
             'titre' => 'Tondeuse à prêter',
             'id_utilisateur' => $utilisateur->id_utilisateur,
+            'lang' => 'fr',
+            'portee' => 'quartier',
         ]);
     }
 
-    public function test_la_creation_est_refusee_sans_categorie(): void
+    public function test_la_creation_est_refusee_sans_titre(): void
     {
         $utilisateur = User::factory()->create();
 
         $this->actingAs($utilisateur)
             ->post(route('publications.store'), [
-                'titre' => 'Sans catégorie',
                 'description' => 'Contenu',
                 'statut' => 'active',
             ])
-            ->assertSessionHasErrors('id_categorie');
+            ->assertSessionHasErrors('titre');
 
         $this->assertSame(0, Publication::count());
     }
