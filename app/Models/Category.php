@@ -11,12 +11,32 @@ class Category extends Model
     use HasFactory;
 
     protected $table = 'categorie';
+
     protected $primaryKey = 'id_categorie';
+
     public $timestamps = false;
 
-    protected $fillable = ['nom', 'description'];
+    protected $fillable = ['nom', 'slug', 'description', 'actif'];
 
-    public function publications(): HasMany {
+    protected function casts(): array
+    {
+        return [
+            'actif' => 'boolean',
+        ];
+    }
+
+    public function publications(): HasMany
+    {
         return $this->hasMany(Publication::class, 'id_categorie', 'id_categorie');
+    }
+
+    public function outils(): HasMany
+    {
+        return $this->hasMany(Outil::class, 'id_categorie', 'id_categorie');
+    }
+
+    public function annonces(): HasMany
+    {
+        return $this->hasMany(Annonce::class, 'id_categorie', 'id_categorie');
     }
 }

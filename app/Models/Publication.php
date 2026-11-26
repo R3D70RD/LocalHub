@@ -2,63 +2,83 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
+use App\Enums\Langue;
+use App\Enums\PorteeVisibilite;
+use App\Models\Concerns\HasGeoContext;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Publication extends Model
 {
-    use HasFactory;
+    use HasFactory, HasGeoContext;
 
     protected $table = 'publication';
+
     protected $primaryKey = 'id_publication';
 
     protected $fillable = [
         'titre',
         'description',
         'prix',
-        'ville',
+        'id_quartier',
+        'id_ville',
+        'id_pays',
         'date_heure',
         'date_creation',
         'id_utilisateur',
         'id_categorie',
+        'lang',
+        'portee',
         'image_path',
         'statut',
+        'version',
     ];
 
-    protected function casts(): array {
+    protected function casts(): array
+    {
         return [
             'date_creation' => 'datetime',
             'date_heure' => 'datetime',
             'prix' => 'decimal:2',
+            'lang' => Langue::class,
+            'portee' => PorteeVisibilite::class,
+            'version' => 'integer',
         ];
     }
 
-    public function utilisateur(): BelongsTo {
+    public function utilisateur(): BelongsTo
+    {
         return $this->belongsTo(User::class, 'id_utilisateur', 'id_utilisateur');
     }
 
-    public function category(): BelongsTo {
+    public function category(): BelongsTo
+    {
         return $this->belongsTo(Category::class, 'id_categorie', 'id_categorie');
+    }
+
+    public function commentaires(): HasMany
+    {
+        return $this->hasMany(Commentaire::class, 'id_publication', 'id_publication')
+            ->latest();
+    }
+
+    public function reactions(): HasMany
+    {
+        return $this->hasMany(Reaction::class, 'id_publication', 'id_publication');
     }
 
     public function scopeActive($query)
     {
         return $query->where('statut', 'active')
-                     ->with(['utilisateur', 'category']) 
-                     ->orderBy('date_creation', 'desc');
+            ->orderByDesc('date_creation');
     }
 
     public function scopeInCategory($query, int $idCategorie)
     {
         return $query->where('id_categorie', $idCategorie)
-                     ->where('statut', 'active')
-                     ->with(['utilisateur', 'category'])
-                     ->orderBy('date_creation', 'desc');
-    }
-
-    public function reservations(): HasMany {
-        return $this->hasMany(Reservation::class, 'id_publication', 'id_publication');
+            ->where('statut', 'active')
+            ->orderByDesc('date_creation');
     }
 }

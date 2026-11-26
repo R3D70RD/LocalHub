@@ -4,21 +4,32 @@ namespace Database\Seeders;
 
 use App\Models\Category;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Str;
 
 class CategorySeeder extends Seeder
 {
+    /**
+     * Taxonomie optionnelle commune à toutes les entités de contenu.
+     *
+     * @var array<int, string>
+     */
     public const CATEGORIES = [
-        "Demande d'aide",
-        'Objets et Matériel',
+        'Meubles',
+        'Outils',
+        'Vêtements',
         'Services',
-        'Événements',
-        'Groupes locaux',
+        'Électronique',
+        'Livres',
+        'Autres',
     ];
 
     public function run(): void
     {
         foreach (self::CATEGORIES as $nom) {
-            Category::updateOrCreate(['nom' => $nom], ['nom' => $nom]);
+            Category::updateOrCreate(
+                ['slug' => Str::slug($nom)],
+                ['nom' => $nom, 'actif' => true],
+            );
         }
     }
 }

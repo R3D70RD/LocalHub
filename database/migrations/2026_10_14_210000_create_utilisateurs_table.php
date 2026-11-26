@@ -1,4 +1,5 @@
 <?php
+
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -16,7 +17,6 @@ return new class extends Migration
             $table->string('prenom', 100);
             $table->string('courriel', 255)->unique();
             $table->string('mot_de_passe', 255);
-            $table->string('ville', 100)->nullable();
             $table->string('role', 30)->default('member');
             $table->string('avatar_path')->nullable();
             $table->text('bio')->nullable();
@@ -47,7 +47,7 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('utilisateur'); 
+        Schema::dropIfExists('utilisateur');
         Schema::dropIfExists('password_reset_tokens');
         Schema::dropIfExists('sessions');
     }

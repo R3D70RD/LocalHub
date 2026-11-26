@@ -10,7 +10,7 @@
         @foreach ([
             ['label' => 'Utilisateurs', 'value' => $stats['users'], 'color' => 'indigo'],
             ['label' => 'Publications', 'value' => $stats['publications'], 'color' => 'emerald'],
-            ['label' => 'Réservations', 'value' => $stats['reservations'], 'color' => 'sky'],
+            ['label' => 'Prêts', 'value' => $stats['prets'], 'color' => 'sky'],
             ['label' => 'Images', 'value' => $stats['images'], 'color' => 'amber'],
         ] as $card)
             <div class="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
