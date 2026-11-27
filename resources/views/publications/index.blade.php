@@ -6,7 +6,9 @@
     <div class="mb-6 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <div>
             <h1 class="text-2xl font-semibold text-slate-900">{{ __('interface.publications') }}</h1>
-            <p class="mt-1 text-sm text-slate-500">{{ __('interface.publications_intro') }}</p>
+            <p class="mt-1 text-sm text-slate-500">
+                {{ $estVisiteur ? __('interface.publications_intro_guest') : __('interface.publications_intro') }}
+            </p>
         </div>
         @auth
             <a href="{{ route('publications.create') }}"
@@ -16,19 +18,35 @@
         @endauth
     </div>
 
-    <form method="get" action="{{ route('publications.index') }}"
-          class="mb-6 grid gap-3 rounded-lg border border-slate-200 bg-white p-4 shadow-sm sm:grid-cols-[1fr_1fr_2fr_auto]">
-        <div>
-            <label for="scope" class="mb-1 block text-xs font-medium uppercase tracking-wide text-slate-500">
-                {{ __('interface.scope') }}
-            </label>
-            <select id="scope" name="scope"
-                    class="w-full rounded-md border border-slate-300 px-3 py-2 text-sm shadow-sm">
-                <option value="quartier" @selected($scope === 'quartier')>{{ __('interface.scope_quartier') }}</option>
-                <option value="ville" @selected($scope === 'ville')>{{ __('interface.scope_ville') }}</option>
-                <option value="pays" @selected($scope === 'pays')>{{ __('interface.scope_pays') }}</option>
-            </select>
+    @if ($estVisiteur)
+        <div class="mb-6 rounded-lg border border-indigo-200 bg-indigo-50 p-4 text-sm text-indigo-900">
+            <p>{{ __('interface.guest_country_only') }}</p>
+            <p class="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1">
+                <a href="{{ route('login') }}" class="font-medium underline underline-offset-4">
+                    {{ __('interface.nav_login') }}
+                </a>
+                <a href="{{ route('register') }}" class="font-medium underline underline-offset-4">
+                    {{ __('interface.nav_register') }}
+                </a>
+            </p>
         </div>
+    @endif
+
+    <form method="get" action="{{ route('publications.index') }}"
+          class="mb-6 grid gap-3 rounded-lg border border-slate-200 bg-white p-4 shadow-sm {{ $estVisiteur ? 'sm:grid-cols-[1fr_2fr_auto]' : 'sm:grid-cols-[1fr_1fr_2fr_auto]' }}">
+        @unless ($estVisiteur)
+            <div>
+                <label for="scope" class="mb-1 block text-xs font-medium uppercase tracking-wide text-slate-500">
+                    {{ __('interface.scope') }}
+                </label>
+                <select id="scope" name="scope"
+                        class="w-full rounded-md border border-slate-300 px-3 py-2 text-sm shadow-sm">
+                    <option value="quartier" @selected($scope === 'quartier')>{{ __('interface.scope_quartier') }}</option>
+                    <option value="ville" @selected($scope === 'ville')>{{ __('interface.scope_ville') }}</option>
+                    <option value="pays" @selected($scope === 'pays')>{{ __('interface.scope_pays') }}</option>
+                </select>
+            </div>
+        @endunless
 
         <div>
             <label for="lang" class="mb-1 block text-xs font-medium uppercase tracking-wide text-slate-500">

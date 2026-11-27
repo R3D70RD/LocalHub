@@ -17,6 +17,8 @@ return [
     'publication' => 'Published posts',
     'publications' => 'Posts',
     'publications_intro' => 'Browse posts from your neighbourhood or widen the scope.',
+    'publications_intro_guest' => 'Discover country-wide posts. Sign in to see posts from your city and neighbourhood.',
+    'guest_country_only' => 'You are not signed in: only country-wide posts are shown. Sign in to see posts from your city and neighbourhood.',
     'new_publication' => 'New post',
     'search' => 'Search posts',
     'search_placeholder' => 'Title or description…',

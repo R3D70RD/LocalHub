@@ -93,6 +93,56 @@ class PublicationWebTest extends TestCase
             ->assertForbidden();
     }
 
+    public function test_un_visiteur_ne_voit_que_les_publications_pays_et_pas_les_pages_locales(): void
+    {
+        $geo = $this->creerContexteGeo();
+        $sarah = $this->utilisateurGeo('Gagnon', $geo['montreal'], $geo['plateau']);
+
+        $quartier = $this->publication($sarah, 'Publication de quartier', 'quartier', 'fr');
+        $ville = $this->publication($sarah, 'Publication de ville', 'ville', 'fr');
+        $pays = $this->publication($sarah, 'Publication de pays', 'pays', 'fr');
+
+        $this->get('/')
+            ->assertOk()
+            ->assertSee('Publication de pays')
+            ->assertDontSee('Publication de quartier')
+            ->assertDontSee('Publication de ville');
+
+        $this->get(route('publications.show', $pays))->assertOk();
+
+        $this->get(route('publications.show', $quartier))->assertNotFound();
+        $this->get(route('publications.show', $ville))->assertNotFound();
+    }
+
+    public function test_la_recherche_publique_ne_montre_que_les_publications_pays(): void
+    {
+        $geo = $this->creerContexteGeo();
+        $sarah = $this->utilisateurGeo('Gagnon', $geo['montreal'], $geo['plateau']);
+
+        $this->publication($sarah, 'Recherche quartier', 'quartier', 'fr');
+        $this->publication($sarah, 'Recherche ville', 'ville', 'fr');
+        $this->publication($sarah, 'Recherche pays', 'pays', 'fr');
+
+        $this->getJson(route('recherche.publications', ['q' => 'Recherche']))
+            ->assertOk()
+            ->assertJsonCount(1, 'data')
+            ->assertJsonPath('data.0.label', 'Recherche pays');
+    }
+
+    public function test_le_foyer_d_un_visiteur_est_alimente_par_les_publications_pays_du_seed(): void
+    {
+        $this->seed();
+
+        $this->assertDatabaseHas('publication', [
+            'portee' => 'pays',
+            'statut' => 'active',
+        ]);
+
+        $this->get('/')
+            ->assertOk()
+            ->assertSee('Atelier de réparation de vélos ouvert à tous');
+    }
+
     private function publication($auteur, string $titre, string $portee, string $lang): Publication
     {
         return Publication::create([

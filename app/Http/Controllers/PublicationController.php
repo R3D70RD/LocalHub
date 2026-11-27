@@ -20,8 +20,13 @@ class PublicationController extends Controller
 
     public function index(Request $request): View
     {
+        $estVisiteur = $request->user() === null;
+        $scope = $estVisiteur
+            ? 'pays'
+            : $this->feed->normaliserScope($request->query('scope'));
+
         $publications = $this->feed->fil($request->user(), [
-            'scope' => $request->query('scope'),
+            'scope' => $scope,
             'lang' => $request->query('lang'),
             'q' => $request->query('q'),
             'par_page' => 10,
@@ -29,8 +34,9 @@ class PublicationController extends Controller
 
         return view('publications.index', [
             'publications' => $publications,
-            'scope' => $this->feed->normaliserScope($request->query('scope')),
+            'scope' => $scope,
             'lang' => $request->query('lang'),
+            'estVisiteur' => $estVisiteur,
         ]);
     }
 
@@ -51,9 +57,9 @@ class PublicationController extends Controller
             ->with('status', __('interface.publication_created'));
     }
 
-    public function show(Publication $publication): View
+    public function show(Request $request, Publication $publication): View
     {
-        abort_if($publication->date_creation === null, 404);
+        abort_unless($this->feed->peutVoir($request->user(), $publication), 404);
 
         $publication->load([
             'utilisateur',

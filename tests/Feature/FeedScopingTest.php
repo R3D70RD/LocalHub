@@ -101,13 +101,18 @@ class FeedScopingTest extends TestCase
         $geo = $this->creerContexteGeo();
         $sarah = $this->utilisateurGeo('Gagnon', $geo['montreal'], $geo['plateau']);
 
-        $this->publication($sarah, 'Quartier', 'quartier', 'fr');
-        $this->publication($sarah, 'Pays', 'pays', 'fr');
+        $quartier = $this->publication($sarah, 'Quartier', 'quartier', 'fr');
+        $pays = $this->publication($sarah, 'Pays', 'pays', 'fr');
+
+        $feed = app(FeedService::class);
 
         $this->assertSame(
             ['Pays'],
-            $this->titres(app(FeedService::class)->fil(null)),
+            $this->titres($feed->fil(null)),
         );
+
+        $this->assertFalse($feed->peutVoir(null, $quartier));
+        $this->assertTrue($feed->peutVoir(null, $pays));
     }
 
     private function publication($auteur, string $titre, string $portee, string $lang): Publication

@@ -17,7 +17,8 @@ use Illuminate\Support\Facades\Route;
 use Illuminate\Validation\Rule;
 
 Route::resource('publications', PublicationController::class)
-    ->only(['index', 'show']);
+    ->only(['index', 'show'])
+    ->whereNumber('publication');
 
 Route::resource('publications', PublicationController::class)
     ->only(['create', 'store', 'edit', 'update', 'destroy'])
@@ -34,7 +35,8 @@ Route::delete('/medias/{media}', [MediaController::class, 'destroy'])
 
 // Bibliothèque d'outils et prêts
 Route::resource('outils', OutilController::class)
-    ->only(['index', 'show']);
+    ->only(['index', 'show'])
+    ->whereNumber('outil');
 
 Route::resource('outils', OutilController::class)
     ->only(['create', 'store', 'edit', 'update', 'destroy'])

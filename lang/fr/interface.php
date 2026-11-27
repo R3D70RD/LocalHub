@@ -17,6 +17,8 @@ return [
     'publication' => 'Publications publiées',
     'publications' => 'Publications',
     'publications_intro' => 'Parcourez les publications de votre quartier ou élargissez la portée.',
+    'publications_intro_guest' => 'Découvrez les publications à l’échelle du pays. Connectez-vous pour voir celles de votre ville et de votre quartier.',
+    'guest_country_only' => 'Vous n’êtes pas connecté : seules les publications à l’échelle du pays sont affichées. Connectez-vous pour voir les publications de votre ville et de votre quartier.',
     'new_publication' => 'Nouvelle publication',
     'search' => 'Rechercher une publication',
     'search_placeholder' => 'Titre ou description…',

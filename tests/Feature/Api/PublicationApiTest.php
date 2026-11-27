@@ -162,6 +162,26 @@ class PublicationApiTest extends TestCase
         $this->assertCount(2, Storage::disk('public')->allFiles('publications'));
     }
 
+    public function test_un_visiteur_ne_voit_que_les_publications_pays_et_pas_le_detail_local(): void
+    {
+        $geo = $this->creerContexteGeo();
+        $sarah = $this->utilisateurGeo('Gagnon', $geo['montreal'], $geo['plateau']);
+
+        $quartier = $this->publication($sarah, 'Dans le quartier', 'quartier', 'fr');
+        $ville = $this->publication($sarah, 'Dans la ville', 'ville', 'fr');
+        $pays = $this->publication($sarah, 'Dans le pays', 'pays', 'fr');
+
+        $this->getJson('/api/v1/publications')
+            ->assertOk()
+            ->assertJsonCount(1, 'data')
+            ->assertJsonPath('data.0.titre', 'Dans le pays');
+
+        $this->getJson('/api/v1/publications/'.$pays->id_publication)->assertOk();
+
+        $this->getJson('/api/v1/publications/'.$quartier->id_publication)->assertNotFound();
+        $this->getJson('/api/v1/publications/'.$ville->id_publication)->assertNotFound();
+    }
+
     private function publication($auteur, string $titre, string $portee, string $lang): Publication
     {
         return Publication::create([

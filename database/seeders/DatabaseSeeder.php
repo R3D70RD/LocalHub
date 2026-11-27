@@ -111,6 +111,22 @@ class DatabaseSeeder extends Seeder
                 'portee' => PorteeVisibilite::VILLE,
                 'categorie' => 'services',
             ],
+            [
+                'utilisateur' => $users['Sarah'],
+                'titre' => 'Atelier de réparation de vélos ouvert à tous',
+                'description' => 'Des bénévoles partagent leurs outils partout au pays pour réparer votre vélo ce printemps.',
+                'lang' => Langue::FR,
+                'portee' => PorteeVisibilite::PAYS,
+                'categorie' => 'services',
+            ],
+            [
+                'utilisateur' => $users['Alex'],
+                'titre' => 'Coast-to-coast community garden guide',
+                'description' => 'A free English guide to starting a community garden anywhere in the country.',
+                'lang' => Langue::EN,
+                'portee' => PorteeVisibilite::PAYS,
+                'categorie' => 'autres',
+            ],
         ];
 
         foreach ($publications as $data) {

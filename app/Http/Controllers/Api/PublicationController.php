@@ -35,8 +35,13 @@ class PublicationController extends Controller
         return PublicationResource::collection($publications);
     }
 
-    public function show(Publication $publication): PublicationResource
+    public function show(Request $request, Publication $publication): PublicationResource
     {
+        abort_unless(
+            $this->feed->peutVoir(Auth::guard('sanctum')->user(), $publication),
+            404,
+        );
+
         $publication->load([
             'utilisateur',
             'category',

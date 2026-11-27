@@ -116,6 +116,33 @@ class FeedService
         return $requete;
     }
 
+    /**
+     * Indique si un lecteur peut consulter une publication donnée.
+     *
+     * Les visiteurs non connectés n'ont accès qu'aux publications à l'échelle
+     * du pays. Un lecteur connecté doit partager le niveau géographique requis
+     * par la portée de la publication (quartier, ville ou pays).
+     */
+    public function peutVoir(?User $lecteur, Publication $publication): bool
+    {
+        if ($publication->date_creation === null || $publication->statut !== 'active' || $publication->portee === null) {
+            return false;
+        }
+
+        if ($lecteur === null) {
+            return $publication->portee === PorteeVisibilite::PAYS;
+        }
+
+        return match ($publication->portee) {
+            PorteeVisibilite::QUARTIER => $lecteur->id_quartier !== null
+                && $publication->id_quartier === $lecteur->id_quartier,
+            PorteeVisibilite::VILLE => $lecteur->id_ville !== null
+                && $publication->id_ville === $lecteur->id_ville,
+            PorteeVisibilite::PAYS => $lecteur->ville?->region?->pays?->id_pays !== null
+                && $publication->id_pays === $lecteur->ville->region->pays->id_pays,
+        };
+    }
+
     public function normaliserScope(?string $scope): string
     {
         return array_key_exists((string) $scope, self::RANGS) ? $scope : 'quartier';
