@@ -2,8 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Pret;
 use App\Models\Publication;
-use App\Models\Reservation;
 use App\Models\User;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
@@ -16,7 +16,7 @@ class AdminController extends Controller
         $stats = [
             'users' => User::count(),
             'publications' => Publication::count(),
-            'reservations' => Reservation::count(),
+            'prets' => Pret::count(),
             'images' => Publication::whereNotNull('image_path')->count(),
         ];
 

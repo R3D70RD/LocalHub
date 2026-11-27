@@ -2,137 +2,134 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\EnregistrerPublicationRequest;
+use App\Models\Publication;
+use App\Services\FeedService;
+use App\Services\PublicationService;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use App\Models\Publication;
-use App\Http\Requests\EnregistrerPublicationRequest;
-use Illuminate\Support\Facades\Storage;
-use Throwable;
-use Illuminate\Support\Facades\Gate;
-
+use Illuminate\Http\UploadedFile;
 
 class PublicationController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
-    public function index(): View
-    {
-        $publications = Publication::query()
-            ->with('utilisateur:id_utilisateur,nom')
-            ->whereNotNull('date_creation')
-            ->latest('date_creation')
-            ->paginate(10);
+    public function __construct(
+        private readonly FeedService $feed,
+        private readonly PublicationService $publications,
+    ) {}
 
-        return view('publications.index', compact('publications'));
+    public function index(Request $request): View
+    {
+        $estVisiteur = $request->user() === null;
+        $scope = $estVisiteur
+            ? 'pays'
+            : $this->feed->normaliserScope($request->query('scope'));
+
+        $publications = $this->feed->fil($request->user(), [
+            'scope' => $scope,
+            'lang' => $request->query('lang'),
+            'q' => $request->query('q'),
+            'par_page' => 10,
+        ]);
+
+        return view('publications.index', [
+            'publications' => $publications,
+            'scope' => $scope,
+            'lang' => $request->query('lang'),
+            'estVisiteur' => $estVisiteur,
+        ]);
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
+    public function create(): View
     {
         return view('publications.create');
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
     public function store(EnregistrerPublicationRequest $request): RedirectResponse
     {
-        $data = $request->safe()->except('image');
-        $path = $request->file('image')?->store('publications', 'public');
-
-        try {
-            $publication = Publication::create([
-                ...$data,
-                ...($path ? ['image_path' => $path] : []),
-                'id_utilisateur' => $request->user()->id_utilisateur,
-                'date_creation' => now(),
-            ]);
-        } catch (Throwable $exception) {
-            if ($path) {
-                Storage::disk('public')->delete($path);
-            }
-            throw $exception;
-        }
+        $publication = $this->publications->creer(
+            $request->user(),
+            $request->safe()->except(['image', 'images']),
+            $this->images($request),
+        );
 
         return redirect()->route('publications.show', $publication)
-            ->with('status', 'publication créé.');
+            ->with('status', __('interface.publication_created'));
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(Publication $publication): View
+    public function show(Request $request, Publication $publication): View
     {
-        abort_if($publication->date_creation === null, 404);
+        abort_unless($this->feed->peutVoir($request->user(), $publication), 404);
+
+        $publication->load([
+            'utilisateur',
+            'category',
+            'medias',
+            'commentaires.utilisateur',
+            'reactions',
+        ]);
+
+        $compteursReactions = $publication->reactions
+            ->groupBy(fn ($reaction) => $reaction->type->value)
+            ->map->count();
+
+        $reactionsUtilisateur = auth()->check()
+            ? $publication->reactions
+                ->where('id_utilisateur', auth()->id())
+                ->pluck('type')
+                ->map(fn ($type) => $type->value)
+                ->all()
+            : [];
 
         return view('publications.show', [
-            'publication' => $publication->load('utilisateur', 'category'),
+            'publication' => $publication,
+            'compteursReactions' => $compteursReactions,
+            'reactionsUtilisateur' => $reactionsUtilisateur,
         ]);
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
     public function edit(Publication $publication): View
     {
-        Gate::authorize('update', $publication);
+        $this->authorize('update', $publication);
 
         return view('publications.edit', compact('publication'));
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
     public function update(EnregistrerPublicationRequest $request, Publication $publication): RedirectResponse
     {
-        Gate::authorize('update', $publication);
+        $this->authorize('update', $publication);
 
-        $data = $request->safe()->except('image');
-        $newPath = $request->file('image')?->store('publications', 'public');
-        $oldPath = $publication->image_path;
-
-        try {
-            $publication->update([
-                ...$data,
-                ...($newPath ? ['image_path' => $newPath] : []),
-            ]);
-        } catch (Throwable $exception) {
-            if ($newPath) {
-                Storage::disk('public')->delete($newPath);
-            } 
-            throw $exception;
-        }
-        
-        if ($newPath && $oldPath) {
-            Storage::disk('public')->delete($oldPath);
-        }
+        $this->publications->mettreAJour(
+            $publication,
+            $request->safe()->except(['image', 'images']),
+            $this->images($request),
+        );
 
         return redirect()->route('publications.show', $publication)
-            ->with('status', 'publication modifié.');
+            ->with('status', __('interface.publication_updated'));
+    }
+
+    public function destroy(Publication $publication): RedirectResponse
+    {
+        $this->authorize('delete', $publication);
+
+        $this->publications->supprimer($publication);
+
+        return redirect()->route('publications.index')
+            ->with('status', __('interface.publication_deleted'));
     }
 
     /**
-     * Remove the specified resource from storage.
+     * @return array<int, UploadedFile>
      */
-    public function destroy(Publication $publication): RedirectResponse
+    private function images(Request $request): array
     {
-        Gate::authorize('delete', $publication);
+        $images = $request->file('images', []);
 
-        $publication->delete();
+        if ($request->file('image') !== null) {
+            $images[] = $request->file('image');
+        }
 
-        return redirect()->route('publications.index')
-            ->with('status', 'publication supprimé.');
-    }
-
-    private function authorizeOwner(Publication $publication): void
-    {
-        abort_unless(
-            auth()->check() && auth()->id() === $publication->id_utilisateur,
-            403
-        );
+        return array_values($images);
     }
 }

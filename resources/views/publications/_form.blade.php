@@ -1,59 +1,38 @@
 @php
-    use App\Enums\PublicationType;
     use App\Models\Category;
 
     $inputClass = 'w-full rounded-md border border-slate-300 px-3 py-2 text-sm shadow-sm focus:border-slate-500 focus:outline-none focus:ring-1 focus:ring-slate-500';
     $labelClass = 'mb-1 block text-sm font-medium text-slate-700';
     $errorClass = 'mt-1 text-sm text-rose-600';
 
-    $categories = Category::orderBy('nom')->get();
-    $currentType = old('type', $publication?->type?->value ?? $publication?->type);
+    $categories = Category::query()->where('actif', true)->orderBy('nom')->get();
     $currentCategorie = old('id_categorie', $publication?->id_categorie);
 @endphp
 
 <div class="space-y-5">
     <div>
-        <label for="titre" class="{{ $labelClass }}">Titre</label>
+        <label for="titre" class="{{ $labelClass }}">{{ __('interface.title') }}</label>
         <input id="titre" name="titre" value="{{ old('titre', $publication?->titre) }}" class="{{ $inputClass }}">
         @error('titre') <p class="{{ $errorClass }}">{{ $message }}</p> @enderror
     </div>
 
     <div>
-        <label for="description" class="{{ $labelClass }}">Contenu</label>
+        <label for="description" class="{{ $labelClass }}">{{ __('interface.content') }}</label>
         <textarea id="description" name="description" rows="6" class="{{ $inputClass }}">{{ old('description', $publication?->description) }}</textarea>
         @error('description') <p class="{{ $errorClass }}">{{ $message }}</p> @enderror
     </div>
 
     <div class="grid gap-5 sm:grid-cols-2">
         <div>
-            <label for="type" class="{{ $labelClass }}">Type</label>
-            <select id="type" name="type" class="{{ $inputClass }}">
-                <option value="">Sélectionner un type</option>
-                @foreach (PublicationType::cases() as $type)
-                    <option value="{{ $type->value }}" @selected($currentType === $type->value)>
-                        {{ $type->label() }}
-                    </option>
-                @endforeach
-            </select>
-            @error('type') <p class="{{ $errorClass }}">{{ $message }}</p> @enderror
-        </div>
-
-        <div>
-            <label for="prix" class="{{ $labelClass }}">Prix</label>
+            <label for="prix" class="{{ $labelClass }}">{{ __('interface.price') }}</label>
             <input id="prix" name="prix" type="number" step="0.01" value="{{ old('prix', $publication?->prix) }}" class="{{ $inputClass }}">
             @error('prix') <p class="{{ $errorClass }}">{{ $message }}</p> @enderror
         </div>
 
         <div>
-            <label for="ville" class="{{ $labelClass }}">Ville</label>
-            <input id="ville" name="ville" value="{{ old('ville', $publication?->ville) }}" class="{{ $inputClass }}">
-            @error('ville') <p class="{{ $errorClass }}">{{ $message }}</p> @enderror
-        </div>
-
-        <div>
-            <label for="id_categorie" class="{{ $labelClass }}">Catégorie</label>
+            <label for="id_categorie" class="{{ $labelClass }}">{{ __('interface.category') }}</label>
             <select id="id_categorie" name="id_categorie" class="{{ $inputClass }}">
-                <option value="">Sélectionner une catégorie</option>
+                <option value="">{{ __('interface.no_category') }}</option>
                 @foreach ($categories as $category)
                     <option value="{{ $category->id_categorie }}" @selected((int) $currentCategorie === $category->id_categorie)>
                         {{ $category->nom }}
@@ -64,29 +43,59 @@
         </div>
 
         <div>
-            <label for="statut" class="{{ $labelClass }}">Statut</label>
-            <input id="statut" name="statut" value="{{ old('statut', $publication?->statut ?? 'active') }}" class="{{ $inputClass }}">
-            @error('statut') <p class="{{ $errorClass }}">{{ $message }}</p> @enderror
+            <label for="lang" class="{{ $labelClass }}">{{ __('interface.language') }}</label>
+            <select id="lang" name="lang" class="{{ $inputClass }}">
+                <option value="fr" @selected(old('lang', $publication?->lang?->value ?? 'fr') === 'fr')>Français</option>
+                <option value="en" @selected(old('lang', $publication?->lang?->value ?? 'fr') === 'en')>English</option>
+            </select>
+            @error('lang') <p class="{{ $errorClass }}">{{ $message }}</p> @enderror
         </div>
 
         <div>
-            <label for="image" class="{{ $labelClass }}">Image</label>
-            <input id="image" name="image" type="file"
+            <label for="portee" class="{{ $labelClass }}">{{ __('interface.scope_label') }}</label>
+            <select id="portee" name="portee" class="{{ $inputClass }}">
+                <option value="quartier" @selected(old('portee', $publication?->portee?->value ?? 'quartier') === 'quartier')>{{ __('interface.scope_quartier') }}</option>
+                <option value="ville" @selected(old('portee', $publication?->portee?->value ?? 'quartier') === 'ville')>{{ __('interface.scope_ville') }}</option>
+                <option value="pays" @selected(old('portee', $publication?->portee?->value ?? 'quartier') === 'pays')>{{ __('interface.scope_pays') }}</option>
+            </select>
+            @error('portee') <p class="{{ $errorClass }}">{{ $message }}</p> @enderror
+        </div>
+
+        <div>
+            <label for="date_heure" class="{{ $labelClass }}">Date et heure (événements)</label>
+            <input id="date_heure" name="date_heure" type="datetime-local"
+                   value="{{ old('date_heure', $publication?->date_heure?->format('Y-m-d\TH:i')) }}"
+                   class="{{ $inputClass }}">
+            @error('date_heure') <p class="{{ $errorClass }}">{{ $message }}</p> @enderror
+        </div>
+
+        <div>
+            <label for="statut" class="{{ $labelClass }}">{{ __('interface.status') }}</label>
+            <select id="statut" name="statut" class="{{ $inputClass }}">
+                <option value="active" @selected(old('statut', $publication?->statut ?? 'active') === 'active')>{{ __('interface.active') }}</option>
+                <option value="inactif" @selected(old('statut', $publication?->statut ?? 'active') === 'inactif')>{{ __('interface.inactive') }}</option>
+            </select>
+            @error('statut') <p class="{{ $errorClass }}">{{ $message }}</p> @enderror
+        </div>
+
+        <div class="sm:col-span-2">
+            <label for="images" class="{{ $labelClass }}">{{ __('interface.images') }}</label>
+            <input id="images" name="images[]" type="file" multiple
                    accept="image/jpeg,image/png,image/webp"
                    class="block w-full text-sm text-slate-700 file:mr-3 file:rounded-md file:border-0 file:bg-slate-900 file:px-3 file:py-2 file:text-sm file:font-medium file:text-white hover:file:bg-slate-700">
-            @error('image') <p class="{{ $errorClass }}">{{ $message }}</p> @enderror
+            @error('images') <p class="{{ $errorClass }}">{{ $message }}</p> @enderror
+            @error('images.*') <p class="{{ $errorClass }}">{{ $message }}</p> @enderror
         </div>
     </div>
 
     <div class="flex items-center gap-3 pt-2">
         <button type="submit"
                 class="rounded-md bg-slate-900 px-4 py-2 text-sm font-medium text-white hover:bg-slate-700">
-            Enregistrer
+            {{ __('interface.save') }}
         </button>
         <a href="{{ route('publications.index') }}"
            class="text-sm text-slate-600 hover:text-slate-900 hover:underline">
-            Annuler
+            {{ __('interface.cancel') }}
         </a>
     </div>
 </div>
-

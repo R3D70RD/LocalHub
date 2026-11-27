@@ -16,7 +16,12 @@ class UserFactory extends Factory
             'prenom' => fake()->firstName(),
             'courriel' => fake()->unique()->safeEmail(),
             'mot_de_passe' => 'password',
-            'ville' => fake()->city(),
+            'id_ville' => null,
+            'id_quartier' => null,
+            'locale' => 'fr',
+            'bio' => fake()->optional()->paragraph(),
+            'telephone' => fake()->optional()->numerify('###-###-####'),
+            'date_inscription' => now(),
         ];
     }
 }

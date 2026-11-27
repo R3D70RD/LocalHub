@@ -38,14 +38,47 @@
                 </div>
 
                 <div class="form-group">
-                    <label for="ville">Ville</label>
-                    <select id="ville" name="ville" required>
-                        <option value="" disabled @selected(old('ville') === null)>Choisir une ville…</option>
-                        @foreach (\App\Support\Villes::QUEBEC as $ville)
-                            <option value="{{ $ville }}" @selected(old('ville') === $ville)>{{ $ville }}</option>
+                    <label for="id_ville">Ville</label>
+                    <select id="id_ville" name="id_ville" required>
+                        <option value="" disabled @selected(old('id_ville') === null)>Choisir une ville…</option>
+                        @foreach ($villes as $ville)
+                            <option value="{{ $ville->id_ville }}" @selected((string) old('id_ville') === (string) $ville->id_ville)>
+                                {{ $ville->nom_fr }}
+                            </option>
                         @endforeach
                     </select>
-                    @error('ville') <p class="form-error">{{ $message }}</p> @enderror
+                    @error('id_ville') <p class="form-error">{{ $message }}</p> @enderror
+                </div>
+
+                <div class="form-group">
+                    <label for="id_quartier">Quartier (optionnel)</label>
+                    <select id="id_quartier" name="id_quartier">
+                        <option value="">Ville seulement</option>
+                        @foreach ($villes as $ville)
+                            @foreach ($ville->quartiers as $quartier)
+                                <option value="{{ $quartier->id_quartier }}"
+                                        data-ville="{{ $ville->id_ville }}"
+                                        @selected((string) old('id_quartier') === (string) $quartier->id_quartier)>
+                                    {{ $ville->nom_fr }} — {{ $quartier->nom_fr }}
+                                </option>
+                            @endforeach
+                        @endforeach
+                    </select>
+                    @error('id_quartier') <p class="form-error">{{ $message }}</p> @enderror
+                </div>
+
+                <div class="form-group">
+                    <label for="telephone">Téléphone</label>
+                    <input id="telephone" name="telephone" type="tel"
+                           value="{{ old('telephone') }}"
+                           autocomplete="tel" maxlength="30">
+                    @error('telephone') <p class="form-error">{{ $message }}</p> @enderror
+                </div>
+
+                <div class="form-group">
+                    <label for="bio">Bio</label>
+                    <textarea id="bio" name="bio" rows="3" maxlength="1000">{{ old('bio') }}</textarea>
+                    @error('bio') <p class="form-error">{{ $message }}</p> @enderror
                 </div>
 
                 <div class="form-group">
@@ -74,3 +107,37 @@
         </div>
     </div>
 @endsection
+
+@push('scripts')
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const ville = document.getElementById('id_ville');
+            const quartier = document.getElementById('id_quartier');
+
+            if (!ville || !quartier) {
+                return;
+            }
+
+            const filtrer = () => {
+                const choix = ville.value;
+
+                Array.from(quartier.options).forEach((option) => {
+                    if (!option.value) {
+                        return;
+                    }
+
+                    const correspond = option.dataset.ville === choix;
+                    option.hidden = !correspond;
+                    option.disabled = !correspond;
+
+                    if (!correspond && option.selected) {
+                        quartier.value = '';
+                    }
+                });
+            };
+
+            ville.addEventListener('change', filtrer);
+            filtrer();
+        });
+    </script>
+@endpush

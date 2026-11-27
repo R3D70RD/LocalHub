@@ -9,6 +9,15 @@ services:
       db:
         condition: service_healthy
 
+  scheduler:
+    build: .
+    command: php artisan schedule:work
+    volumes:
+      - .:/var/www/html
+    depends_on:
+      db:
+        condition: service_healthy
+
   db:
     image: mysql:8.4
     ports:

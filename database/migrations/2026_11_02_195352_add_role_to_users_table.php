@@ -1,8 +1,6 @@
 <?php
 
 use Illuminate\Database\Migrations\Migration;
-use Illuminate\Database\Schema\Blueprint;
-use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
@@ -11,9 +9,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('utilisateur', function (Blueprint $table) {
-            $table->string('role')->default('member');
-        });
+        // role is now part of the base utilisateurs migration.
     }
 
     /**
@@ -21,8 +17,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('utilisateur', function (Blueprint $table) {
-            $table->dropColumn('role');
-        });
+        // No-op: role is handled by the base utilisateurs migration.
     }
 };

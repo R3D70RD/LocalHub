@@ -2,9 +2,9 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rules\Password;
@@ -17,6 +17,20 @@ class CompteController extends Controller
             'user' => $request->user(),
             'publications' => $request->user()->publications()->latest()->get(),
         ]);
+    }
+
+    public function updateProfile(Request $request): RedirectResponse
+    {
+        $data = $request->validate([
+            'prenom' => ['required', 'string', 'max:100'],
+            'nom' => ['required', 'string', 'max:100'],
+            'telephone' => ['nullable', 'string', 'max:30'],
+            'bio' => ['nullable', 'string', 'max:1000'],
+        ]);
+
+        $request->user()->update($data);
+
+        return back()->with('status', 'Profil mis à jour.');
     }
 
     public function updatePassword(Request $request): RedirectResponse
