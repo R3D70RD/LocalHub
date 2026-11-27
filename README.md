@@ -1,59 +1,158 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# LocalHub
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+Plateforme de quartier : les voisins publient des nouvelles, prêtent des outils, demandent de l'aide, vendent ou échangent des objets, organisent des événements et des rencontres. L'interface est bilingue français/anglais et le contenu reste affiché dans la langue de son auteur. Le projet vise d'abord le marché canadien.
 
-## About Laravel
+## Présentation
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+LocalHub est une application Laravel monolithique dont MySQL est l'unique source de vérité. Elle expose deux surfaces partageant la même couche de services :
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+- une interface Web Blade avec authentification par session, destinée aux voisins ;
+- une API versionnée `/api/v1` avec jetons Sanctum, préparée pour un client Android. La version officiel Android consomme déjà les endpoints de lecture des publications ; ce contrat de lecture doit donc rester stable.
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+Le produit est centré sur la géographie locale : `pays` → `region` → `ville` → `quartier`, avec geohash, coordonnées et périmètres de visibilité.
 
-## Learning Laravel
+## État du projet
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework. You can also check out [Laravel Learn](https://laravel.com/learn), where you will be guided through building a modern Laravel application.
+| Phase | État | Contenu |
+|---|---|---|
+| Phase 0 | Terminée | Refonte du schéma, tables géo et métier, Sanctum et squelette API |
+| Phase 1 | Terminée | MVP Québec : fil de quartier, bibliothèque d'outils, prêts, notifications |
+| Phase 2 | À faire | Aide, marché, événements, rencontres, confiance/sécurité, recherche, union du fil |
+| Phase 3 | À faire | Finition de l'interface (animations, design), sécurité, corrections, mise en ligne et plan Android |
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+La feuille de route détaillée se trouve dans [PLAN.md](PLAN.md).
 
-## Laravel Sponsors
+## Pile technique
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+- Laravel 12 / PHP 8.2
+- MySQL 8.4 (tests sur SQLite)
+- Blade, Vite, session pour le Web
+- Sanctum pour l'API `/api/v1`
+- PHPUnit 11 pour les tests, Pint pour le formatage
 
-### Premium Partners
+## Démarrage avec Docker
 
-- **[Vehikl](https://vehikl.com)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Redberry](https://redberry.international/laravel-development)**
-- **[Active Logic](https://activelogic.com)**
+Prérequis : Docker et Docker Compose.
 
-## Contributing
+```bash
+cp .env.example .env            # si le fichier .env n'existe pas encore
+docker compose up -d --build
+docker compose exec -T app php artisan key:generate   # uniquement si APP_KEY est vide
+docker compose exec -T app php artisan migrate:fresh --seed --force
+```
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+L'application est ensuite disponible sur `http://localhost:8080`.
 
-## Code of Conduct
+Services Compose :
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+| Service | Rôle | Accès |
+|---|---|---|
+| `app` | Application Web et API | port hôte `8080` |
+| `scheduler` | Planificateur Laravel (`schedule:work`) | balayage horaire des prêts en retard |
+| `db` | MySQL 8.4 | port hôte `3307` |
 
-## Security Vulnerabilities
+> Les migrations de base ayant été modifiées, utilisez `migrate:fresh --seed` sur une base existante plutôt qu'une migration incrémentale. Les données de démonstration sont jetables par décision de conception.
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+## Comptes de démonstration
 
-## License
+| Courriel | Mot de passe | Rôle |
+|---|---|---|
+| `admin@localhub.test` | `admin1234` | Gestionnaire (valeurs `ADMIN_*` du `.env`) |
+| `alex.tremblay@localhub.test` | `password` | Voisin, Montréal / Le Plateau-Mont-Royal |
+| `sarah.gagnon@localhub.test` | `password` | Voisine, Montréal / Le Plateau-Mont-Royal |
+| `thomas.roy@localhub.test` | `password` | Voisin, Laval (sans quartier) |
+| `emma.bouchard@localhub.test` | `password` | Voisine, Montréal / Verdun |
+| `maxime.cote@localhub.test` | `password` | Voisin, Québec / La Cité-Limoilou |
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+## Configuration
+
+Variables notables du `.env` :
+
+| Variable | Rôle |
+|---|---|
+| `APP_URL` | `http://localhost:8080` |
+| `APP_LOCALE`, `APP_FALLBACK_LOCALE` | Langue de l'interface (`en` par défaut dans l'exemple, interface FR/EN disponible) |
+| `DB_CONNECTION`, `DB_HOST`, `DB_PORT` | `mysql`, `db`, `3306` (port `3307` côté hôte) |
+| `DB_DATABASE`, `DB_USERNAME`, `DB_PASSWORD` | `localhub`, `user-docker`, `docker_password` |
+| `SESSION_DRIVER`, `QUEUE_CONNECTION`, `CACHE_STORE` | `database` |
+| `ADMIN_EMAIL`, `ADMIN_PASSWORD`, `ADMIN_NOM`, `ADMIN_PRENOM`, `ADMIN_VILLE` | Compte gestionnaire créé par le seeder |
+
+## Fonctionnalités disponibles
+
+### Fil de quartier
+
+- Publications avec titre, description, catégorie, prix, date et médias multiples.
+- Commentaires et réactions (`j_aime`, `utile`, `merci`).
+- Téléversement de plusieurs images via la table polymorphe `media`.
+- Filtre de périmètre (`scope` : `quartier`, `ville`, `pays`) et recherche texte (`q`).
+
+### Bibliothèque d'outils et prêts
+
+- Création d'outils avec catégorie, état, caution et géolocalisation.
+- Cycle de vie des prêts : `demande → approuve → emprunte → retourne`, avec `refuse`, `annule`, `en_retard`, `litige` et `resoudre`.
+- Contrôle des rôles (propriétaire, emprunteur, gestionnaire, système) et verrou optimiste `version`.
+- Contrainte `cle_active` : un seul prêt actif par outil.
+- En-tête `Idempotency-Key` sur les écritures de prêts : un retry rejoue la réponse au lieu de dupliquer l'opération.
+- Messagerie de prêt via la table `message` et balayage automatique des retards.
+- Notifications intégrées avec compteur de non-lus et marquage comme lu.
+
+### Langue
+
+L'interface est traduite en français et en anglais via `lang/fr` et `lang/en`. Le contenu créé par les voisins n'est ni traduit ni filtré par langue : il est affiché dans la langue choisie par son auteur. Aucune traduction, automatique ou à la demande, n'est prévue.
+
+## Architecture
+
+### Conventions de données
+
+- MySQL est la seule source de vérité ; aucune projection dans une autre base.
+- Tables au singulier en français, clés étrangères préfixées `id_*` (`id_utilisateur`, `id_ville`, `id_quartier`…).
+- Une table par entité ; le fil agrège les entités visibles (union prévue en phase 2).
+- Géo : `pays` → `region` → `ville` → `quartier`, avec centroïdes, `geohash` et table `categorie` optionnelle.
+
+### Règle de visibilité
+
+La `portee` de l'auteur (`quartier` / `ville` / `pays`) est un plafond ; le paramètre `scope` demandé par le lecteur est le rayon de recherche (par défaut `quartier`). Une publication est visible lorsque le rang de sa portée est inférieur ou égal à celui du scope et que l'identifiant géographique du niveau concerné correspond à celui du lecteur. Un utilisateur sans quartier se replie sur sa ville ; un visiteur non connecté ne voit que le contenu au niveau `pays`.
+
+### Couche de services
+
+Les contrôleurs Web (`App\Http\Controllers`) et API (`App\Http\Controllers\Api`) appellent les mêmes services et n'écrivent pas directement dans les modèles pour ces flux.
+
+| Service | Responsabilité |
+|---|---|
+| `FeedService` | Périmétrage géographique et recherche du fil |
+| `PublicationService` | CRUD des publications, commentaires, réactions, médias |
+| `OutilService` | CRUD des outils, géolocalisation, médias |
+| `LoanService` | Machine à états des prêts, rôles, verrou optimiste, messagerie, retards |
+| `IdempotencyService` | Rejeu des requêtes identifiées par `Idempotency-Key` |
+| `NotificationService` | Création et lecture des notifications |
+| `LocalisationService` | Résolution coordonnées → ville/quartier et geohash |
+
+## API v1
+
+URL de base : `/api/v1`. Les réponses sont en JSON. Les routes d'écriture exigent un jeton Sanctum (`Authorization: Bearer <token>`) ; la lecture du fil et des outils est publique mais limitée au contenu au niveau `pays` pour les visiteurs non authentifiés.
+
+Points d'accès principaux :
+
+- authentification : `POST /auth/token`, `GET /me`, `POST /auth/logout`, `GET /health` ;
+- publications : `GET/POST /publications`, `GET/PUT/PATCH/DELETE /publications/{id}`, commentaires et réactions ;
+- outils : `GET/POST /outils`, `GET/PUT/PATCH/DELETE /outils/{id}` ;
+- prêts : `GET /prets`, `POST /outils/{id}/prets`, `GET /prets/{id}`, `POST /prets/{id}/transition`, messages ;
+- notifications : `GET /notifications`, marquage comme lu.
+
+Le contrat complet, les paramètres et les codes d'erreur sont documentés dans [docs/api-v1.md](docs/api-v1.md).
+
+## Tests et vérification
+
+```bash
+docker compose up -d --build
+docker compose exec -T app php artisan migrate:fresh --seed --force
+docker compose exec -T app php vendor/bin/phpunit --do-not-cache-result
+docker compose exec -T app php artisan schedule:list
+docker compose exec -T app php vendor/bin/pint --test
+```
+
+La suite actuelle comporte 43 tests et 164 assertions couvrant les parcours critiques : publication, périmétrage, prêts concurrents, cycle de vie des prêts et API.
+
+## Licence
+
+MIT, héritée du squelette Laravel.
