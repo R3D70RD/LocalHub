@@ -45,6 +45,11 @@ Règle de portée : la `portee` choisie par l'auteur est un plafond ; `scope` es
 rayon demandé par le lecteur. Les deux doivent concorder, et l'identifiant
 géographique du niveau concerné doit correspondre.
 
+Visibilité publique : une requête sans jeton Sanctum ne reçoit que les
+publications `portee = pays`, aussi bien sur `GET /publications` que sur
+`GET /publications/{id}`. Les publications de ville ou de quartier renvoient
+`404` sans authentification.
+
 Création (multipart pour les images) :
 
 ```bash
