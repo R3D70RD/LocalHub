@@ -29,6 +29,22 @@
                         {{ __('interface.nav_tools') }}
                     </a>
                 @endif
+                <a href="{{ route('demandes-aide.index') }}"
+                   class="rounded-md px-3 py-1.5 text-slate-600 hover:bg-slate-100 hover:text-slate-900">
+                    {{ __('interface.nav_help') }}
+                </a>
+                <a href="{{ route('annonces.index') }}"
+                   class="rounded-md px-3 py-1.5 text-slate-600 hover:bg-slate-100 hover:text-slate-900">
+                    {{ __('interface.nav_market') }}
+                </a>
+                <a href="{{ route('evenements.index') }}"
+                   class="rounded-md px-3 py-1.5 text-slate-600 hover:bg-slate-100 hover:text-slate-900">
+                    {{ __('interface.nav_events') }}
+                </a>
+                <a href="{{ route('rencontres.index') }}"
+                   class="rounded-md px-3 py-1.5 text-slate-600 hover:bg-slate-100 hover:text-slate-900">
+                    {{ __('interface.nav_meetups') }}
+                </a>
 
                 @auth
                     @if (auth()->user()?->role === \App\Models\User::ROLE_MANAGER)

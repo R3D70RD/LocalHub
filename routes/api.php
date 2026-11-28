@@ -1,13 +1,23 @@
 <?php
 
+use App\Http\Controllers\Api\AnnonceController;
+use App\Http\Controllers\Api\AnnonceMessageController;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\CommentaireController;
+use App\Http\Controllers\Api\DemandeAideController;
+use App\Http\Controllers\Api\EvenementController;
+use App\Http\Controllers\Api\FilController;
+use App\Http\Controllers\Api\InscriptionEvenementController;
 use App\Http\Controllers\Api\MediaController;
 use App\Http\Controllers\Api\NotificationController;
+use App\Http\Controllers\Api\OffreAideController;
+use App\Http\Controllers\Api\OffreAnnonceController;
 use App\Http\Controllers\Api\OutilController;
 use App\Http\Controllers\Api\PretController;
 use App\Http\Controllers\Api\PublicationController;
 use App\Http\Controllers\Api\ReactionController;
+use App\Http\Controllers\Api\RencontreController;
+use App\Http\Controllers\Api\RencontreMembreController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/health', fn () => response()->json([
@@ -19,11 +29,20 @@ Route::get('/health', fn () => response()->json([
 Route::post('/auth/token', [AuthController::class, 'store'])
     ->middleware('throttle:6,1');
 
-// Lecture publique du fil et de la bibliothèque d'outils.
+// Lecture publique du fil et des entités.
+Route::get('/fil', [FilController::class, 'index']);
 Route::get('/publications', [PublicationController::class, 'index']);
 Route::get('/publications/{publication}', [PublicationController::class, 'show']);
 Route::get('/outils', [OutilController::class, 'index']);
 Route::get('/outils/{outil}', [OutilController::class, 'show']);
+Route::get('/demandes-aide', [DemandeAideController::class, 'index']);
+Route::get('/demandes-aide/{demande}', [DemandeAideController::class, 'show']);
+Route::get('/annonces', [AnnonceController::class, 'index']);
+Route::get('/annonces/{annonce}', [AnnonceController::class, 'show']);
+Route::get('/evenements', [EvenementController::class, 'index']);
+Route::get('/evenements/{evenement}', [EvenementController::class, 'show']);
+Route::get('/rencontres', [RencontreController::class, 'index']);
+Route::get('/rencontres/{rencontre}', [RencontreController::class, 'show']);
 
 Route::middleware('auth:sanctum')->group(function () {
     Route::get('/me', [AuthController::class, 'me']);
@@ -48,6 +67,33 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/prets/{pret}/transition', [PretController::class, 'transition']);
     Route::get('/prets/{pret}/messages', [PretController::class, 'messages']);
     Route::post('/prets/{pret}/messages', [PretController::class, 'storeMessage']);
+
+    // Demandes d'aide
+    Route::post('/demandes-aide', [DemandeAideController::class, 'store']);
+    Route::match(['put', 'patch'], '/demandes-aide/{demande}', [DemandeAideController::class, 'update']);
+    Route::delete('/demandes-aide/{demande}', [DemandeAideController::class, 'destroy']);
+    Route::post('/demandes-aide/{demande}/offres', [OffreAideController::class, 'store']);
+
+    // Marché
+    Route::post('/annonces', [AnnonceController::class, 'store']);
+    Route::match(['put', 'patch'], '/annonces/{annonce}', [AnnonceController::class, 'update']);
+    Route::delete('/annonces/{annonce}', [AnnonceController::class, 'destroy']);
+    Route::post('/annonces/{annonce}/offres', [OffreAnnonceController::class, 'store']);
+    Route::post('/annonces/{annonce}/messages', [AnnonceMessageController::class, 'store']);
+
+    // Événements
+    Route::post('/evenements', [EvenementController::class, 'store']);
+    Route::match(['put', 'patch'], '/evenements/{evenement}', [EvenementController::class, 'update']);
+    Route::delete('/evenements/{evenement}', [EvenementController::class, 'destroy']);
+    Route::post('/evenements/{evenement}/inscriptions', [InscriptionEvenementController::class, 'store']);
+    Route::delete('/evenements/{evenement}/inscriptions', [InscriptionEvenementController::class, 'destroy']);
+
+    // Rencontres
+    Route::post('/rencontres', [RencontreController::class, 'store']);
+    Route::match(['put', 'patch'], '/rencontres/{rencontre}', [RencontreController::class, 'update']);
+    Route::delete('/rencontres/{rencontre}', [RencontreController::class, 'destroy']);
+    Route::post('/rencontres/{rencontre}/membres', [RencontreMembreController::class, 'store']);
+    Route::delete('/rencontres/{rencontre}/membres', [RencontreMembreController::class, 'destroy']);
 
     Route::get('/notifications', [NotificationController::class, 'index']);
     Route::post('/notifications/read-all', [NotificationController::class, 'toutLire']);

@@ -6,6 +6,8 @@ use App\Enums\PorteeVisibilite;
 use App\Models\Annonce;
 use App\Models\Category;
 use App\Models\Commentaire;
+use App\Models\DemandeAide;
+use App\Models\Evenement;
 use App\Models\Outil;
 use App\Models\ParametreUtilisateur;
 use App\Models\Pays;
@@ -13,6 +15,7 @@ use App\Models\Pret;
 use App\Models\Publication;
 use App\Models\Quartier;
 use App\Models\Reaction;
+use App\Models\Rencontre;
 use App\Models\User;
 use App\Models\Ville;
 use App\Support\Geohash;
@@ -226,6 +229,63 @@ class DatabaseSeeder extends Seeder
                 'type_annonce' => 'don',
                 'prix' => 0,
                 'statut' => 'active',
+            ],
+        );
+
+        DemandeAide::firstOrCreate(
+            [
+                'id_utilisateur' => $users['Thomas']->id_utilisateur,
+                'titre' => 'Coup de main pour un déménagement',
+            ],
+            [
+                'description' => 'Besoin de deux personnes samedi matin pour porter des boîtes.',
+                'id_categorie' => $categories['services'] ?? null,
+                'id_quartier' => $users['Thomas']->id_quartier,
+                'id_ville' => $users['Thomas']->id_ville,
+                'id_pays' => $pays->id_pays,
+                'portee' => PorteeVisibilite::VILLE,
+                'urgent' => true,
+                'statut' => 'ouverte',
+            ],
+        );
+
+        Evenement::firstOrCreate(
+            [
+                'id_utilisateur' => $users['Emma']->id_utilisateur,
+                'titre' => 'Fête de quartier à Verdun',
+            ],
+            [
+                'description' => 'Rencontre conviviale au parc, apportez un plat à partager.',
+                'id_categorie' => $categories['autres'] ?? null,
+                'id_quartier' => $users['Emma']->id_quartier,
+                'id_ville' => $users['Emma']->id_ville,
+                'id_pays' => $pays->id_pays,
+                'portee' => PorteeVisibilite::QUARTIER,
+                'date_debut' => now()->addDays(10)->setTime(15, 0),
+                'timezone_id' => 'America/Toronto',
+                'lieu' => 'Parc de Verdun',
+                'capacite' => 40,
+                'statut' => 'actif',
+            ],
+        );
+
+        Rencontre::firstOrCreate(
+            [
+                'id_utilisateur' => $users['Maxime']->id_utilisateur,
+                'titre' => 'Club de lecture',
+            ],
+            [
+                'description' => 'On se retrouve pour parler du livre du mois.',
+                'id_categorie' => $categories['autres'] ?? null,
+                'id_quartier' => $users['Maxime']->id_quartier,
+                'id_ville' => $users['Maxime']->id_ville,
+                'id_pays' => $pays->id_pays,
+                'portee' => PorteeVisibilite::VILLE,
+                'date_heure' => now()->addDays(7)->setTime(19, 0),
+                'lieu' => 'Café du coin',
+                'capacite' => 8,
+                'interets' => ['lecture', 'discussion'],
+                'statut' => 'ouverte',
             ],
         );
     }

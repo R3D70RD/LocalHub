@@ -27,7 +27,7 @@ class Evenement extends Model
         'portee',
         'date_debut',
         'date_fin',
-        'timezone',
+        'timezone_id',
         'lieu',
         'capacite',
         'statut',

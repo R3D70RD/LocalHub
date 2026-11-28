@@ -53,6 +53,14 @@ class Annonce extends Model
         return $this->hasMany(OffreAnnonce::class, 'id_annonce', 'id_annonce');
     }
 
+    /**
+     * Un prix nul signifie un échange gratuit (don).
+     */
+    public function estGratuite(): bool
+    {
+        return $this->prix !== null && (float) $this->prix === 0.0;
+    }
+
     public function messages(): HasMany
     {
         return $this->hasMany(Message::class, 'id_annonce', 'id_annonce');

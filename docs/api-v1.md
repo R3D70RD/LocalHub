@@ -123,6 +123,80 @@ Protection contre les courses :
   `POST /prets/{id}/transition` : un retry avec la même clé rejoue la réponse
   d'origine (`Idempotent-Replayed: true`) au lieu de dupliquer l'opération.
 
+## Fil unifié
+
+| Méthode | Route | Description |
+|---|---|---|
+| `GET` | `/fil` | Fil unifié de toutes les entités visibles (publications, outils, aide, marché, événements, rencontres) |
+
+Paramètres : `scope`, `q`, `par_page`. Chaque élément expose `type`, `id`, `titre`,
+`description`, `date`, `portee`, `auteur` et `categorie`.
+
+## Demandes d'aide
+
+| Méthode | Route | Description |
+|---|---|---|
+| `GET` | `/demandes-aide` | Liste paginée, lecture publique |
+| `GET` | `/demandes-aide/{id}` | Détail |
+| `POST` | `/demandes-aide` | Créer une demande |
+| `PUT/PATCH` | `/demandes-aide/{id}` | Modifier (auteur) |
+| `DELETE` | `/demandes-aide/{id}` | Supprimer (auteur) |
+| `POST` | `/demandes-aide/{id}/offres` | Proposer une aide |
+
+`urgent` (booléen) et `date_limite` sont optionnels. Les listes acceptent `scope`, `q`, `par_page`.
+
+## Marché
+
+| Méthode | Route | Description |
+|---|---|---|
+| `GET` | `/annonces` | Liste paginée, lecture publique |
+| `GET` | `/annonces/{id}` | Détail |
+| `POST` | `/annonces` | Créer une annonce |
+| `PUT/PATCH` | `/annonces/{id}` | Modifier (auteur) |
+| `DELETE` | `/annonces/{id}` | Supprimer (auteur) |
+| `POST` | `/annonces/{id}/offres` | Faire une offre |
+| `POST` | `/annonces/{id}/messages` | Envoyer un message (chat de l’annonce) |
+
+`prix = 0` ⇒ échange gratuit : la réponse expose `gratuite: true` et `type_annonce`
+est ramené à `don` (sauf pour une `recherche`).
+
+## Événements
+
+| Méthode | Route | Description |
+|---|---|---|
+| `GET` | `/evenements` | Liste paginée, lecture publique |
+| `GET` | `/evenements/{id}` | Détail |
+| `POST` | `/evenements` | Créer un événement |
+| `PUT/PATCH` | `/evenements/{id}` | Modifier (auteur) |
+| `DELETE` | `/evenements/{id}` | Supprimer (auteur) |
+| `POST` | `/evenements/{id}/inscriptions` | S’inscrire (RSVP) |
+| `DELETE` | `/evenements/{id}/inscriptions` | Se désinscrire |
+
+Les dates (`date_debut`, `date_fin`) sont stockées en **UTC** ; `timezone_id` est un
+identifiant IANA (`America/Toronto`, …). La capacité est vérifiée à l’inscription
+(`422` si complet).
+
+## Rencontres sociales
+
+| Méthode | Route | Description |
+|---|---|---|
+| `GET` | `/rencontres` | Liste paginée, lecture publique |
+| `GET` | `/rencontres/{id}` | Détail |
+| `POST` | `/rencontres` | Créer une rencontre |
+| `PUT/PATCH` | `/rencontres/{id}` | Modifier (auteur) |
+| `DELETE` | `/rencontres/{id}` | Supprimer (auteur) |
+| `POST` | `/rencontres/{id}/membres` | Rejoindre |
+| `DELETE` | `/rencontres/{id}/membres` | Quitter |
+
+`interets` est une liste de chaînes ; `capacite` est optionnelle et vérifiée à l’adhésion.
+
+## Recherche
+
+Toutes les listes et le fil unifié acceptent `q`. Sur MySQL, la recherche utilise les
+index **FULLTEXT** (`MATCH … AGAINST` sur `titre` et `description`, fr/en) ; sous SQLite
+(tests), un repli `LIKE` est utilisé. Seul le texte de l’auteur est recherché, sans
+recherche interlangue.
+
 ## Notifications
 
 | Méthode | Route | Description |

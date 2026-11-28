@@ -61,7 +61,7 @@ return new class extends Migration
             $table->string('portee', 20)->default('quartier');
             $table->dateTime('date_debut');
             $table->dateTime('date_fin')->nullable();
-            $table->string('timezone', 64)->default('America/Toronto');
+            $table->string('timezone_id', 64)->default('America/Toronto');
             $table->string('lieu', 255)->nullable();
             $table->unsignedSmallInteger('capacite')->nullable();
             $table->string('statut', 20)->default('actif');

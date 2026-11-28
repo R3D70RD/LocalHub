@@ -1,16 +1,26 @@
 <?php
 
 use App\Http\Controllers\AdminController;
+use App\Http\Controllers\AnnonceController;
+use App\Http\Controllers\AnnonceMessageController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\CommentaireController;
 use App\Http\Controllers\CompteController;
+use App\Http\Controllers\DemandeAideController;
+use App\Http\Controllers\EvenementController;
+use App\Http\Controllers\FilController;
 use App\Http\Controllers\InscriptionController;
+use App\Http\Controllers\InscriptionEvenementController;
 use App\Http\Controllers\MediaController;
 use App\Http\Controllers\NotificationController;
+use App\Http\Controllers\OffreAideController;
+use App\Http\Controllers\OffreAnnonceController;
 use App\Http\Controllers\OutilController;
 use App\Http\Controllers\PretController;
 use App\Http\Controllers\PublicationController;
 use App\Http\Controllers\RecherchePublicationController;
+use App\Http\Controllers\RencontreController;
+use App\Http\Controllers\RencontreMembreController;
 use App\Http\Controllers\TraductionController;
 use App\Http\Middleware\EnsureManager;
 use Illuminate\Http\Request;
@@ -61,6 +71,71 @@ Route::post('/prets/{pret}/transition', [PretController::class, 'transition'])
 Route::post('/prets/{pret}/messages', [PretController::class, 'storeMessage'])
     ->middleware('auth')->name('prets.messages.store');
 
+// Demandes d'aide
+Route::resource('demandes-aide', DemandeAideController::class)
+    ->only(['index', 'show'])
+    ->parameters(['demandes-aide' => 'demande'])
+    ->whereNumber('demande');
+
+Route::resource('demandes-aide', DemandeAideController::class)
+    ->only(['create', 'store', 'edit', 'update', 'destroy'])
+    ->parameters(['demandes-aide' => 'demande'])
+    ->middleware('auth');
+
+Route::post('/demandes-aide/{demande}/offres', [OffreAideController::class, 'store'])
+    ->middleware('auth')->name('demandes-aide.offres.store');
+
+// Marché
+Route::resource('annonces', AnnonceController::class)
+    ->only(['index', 'show'])
+    ->parameters(['annonces' => 'annonce'])
+    ->whereNumber('annonce');
+
+Route::resource('annonces', AnnonceController::class)
+    ->only(['create', 'store', 'edit', 'update', 'destroy'])
+    ->parameters(['annonces' => 'annonce'])
+    ->middleware('auth');
+
+Route::post('/annonces/{annonce}/offres', [OffreAnnonceController::class, 'store'])
+    ->middleware('auth')->name('annonces.offres.store');
+
+Route::post('/annonces/{annonce}/messages', [AnnonceMessageController::class, 'store'])
+    ->middleware('auth')->name('annonces.messages.store');
+
+// Événements
+Route::resource('evenements', EvenementController::class)
+    ->only(['index', 'show'])
+    ->parameters(['evenements' => 'evenement'])
+    ->whereNumber('evenement');
+
+Route::resource('evenements', EvenementController::class)
+    ->only(['create', 'store', 'edit', 'update', 'destroy'])
+    ->parameters(['evenements' => 'evenement'])
+    ->middleware('auth');
+
+Route::post('/evenements/{evenement}/inscriptions', [InscriptionEvenementController::class, 'store'])
+    ->middleware('auth')->name('evenements.inscriptions.store');
+
+Route::delete('/evenements/{evenement}/inscriptions', [InscriptionEvenementController::class, 'destroy'])
+    ->middleware('auth')->name('evenements.inscriptions.destroy');
+
+// Rencontres
+Route::resource('rencontres', RencontreController::class)
+    ->only(['index', 'show'])
+    ->parameters(['rencontres' => 'rencontre'])
+    ->whereNumber('rencontre');
+
+Route::resource('rencontres', RencontreController::class)
+    ->only(['create', 'store', 'edit', 'update', 'destroy'])
+    ->parameters(['rencontres' => 'rencontre'])
+    ->middleware('auth');
+
+Route::post('/rencontres/{rencontre}/membres', [RencontreMembreController::class, 'store'])
+    ->middleware('auth')->name('rencontres.membres.store');
+
+Route::delete('/rencontres/{rencontre}/membres', [RencontreMembreController::class, 'destroy'])
+    ->middleware('auth')->name('rencontres.membres.destroy');
+
 // Notifications
 Route::get('/notifications', [NotificationController::class, 'index'])
     ->middleware('auth')->name('notifications.index');
@@ -103,7 +178,8 @@ Route::post('/deconnexion', [AuthController::class, 'logout'])
 
 // compte
 
-Route::get('/', [PublicationController::class, 'index'])->name('home');
+// Fil unifié (accueil)
+Route::get('/', [FilController::class, 'index'])->name('home');
 
 Route::get('/compte', [CompteController::class, 'show'])
     ->middleware('auth')->name('account.show');

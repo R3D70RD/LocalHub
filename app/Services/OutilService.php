@@ -15,6 +15,7 @@ class OutilService
     public function __construct(
         private readonly FeedService $feed,
         private readonly PublicationService $medias,
+        private readonly RechercheService $recherche,
     ) {}
 
     /**
@@ -36,14 +37,7 @@ class OutilService
             ->orderByDesc('id_outil');
 
         $this->feed->appliquerPortee($requete, $lecteur, $scope);
-
-        if (! empty($filtres['q'])) {
-            $recherche = '%'.$filtres['q'].'%';
-            $requete->where(function ($q) use ($recherche) {
-                $q->where('titre', 'like', $recherche)
-                    ->orWhere('description', 'like', $recherche);
-            });
-        }
+        $this->recherche->appliquer($requete, $filtres['q'] ?? null);
 
         return $requete->paginate($parPage)->withQueryString();
     }
