@@ -3,10 +3,18 @@
 namespace App\Services;
 
 use App\Enums\PorteeVisibilite;
+use App\Models\Annonce;
+use App\Models\Category;
+use App\Models\DemandeAide;
+use App\Models\Evenement;
+use App\Models\Outil;
 use App\Models\Publication;
+use App\Models\Rencontre;
 use App\Models\User;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\DB;
 
 /**
  * Construit le fil géolocalisé.
@@ -24,8 +32,13 @@ class FeedService
         'pays' => 3,
     ];
 
+    public function __construct(
+        private readonly RechercheService $recherche,
+        private readonly BlocageService $blocages,
+    ) {}
+
     /**
-     * @param  array{scope?: string, lang?: string|null, q?: string|null, par_page?: int}  $filtres
+     * @param  array{scope?: string, q?: string|null, par_page?: int}  $filtres
      */
     public function fil(?User $lecteur, array $filtres = []): LengthAwarePaginator
     {
@@ -44,20 +57,93 @@ class FeedService
             ->orderByDesc('id_publication');
 
         $this->appliquerPortee($requete, $lecteur, $scope);
-
-        if (! empty($filtres['lang']) && in_array($filtres['lang'], ['fr', 'en'], true)) {
-            $requete->where('lang', $filtres['lang']);
-        }
-
-        if (! empty($filtres['q'])) {
-            $recherche = '%'.$filtres['q'].'%';
-            $requete->where(function (Builder $q) use ($recherche) {
-                $q->where('titre', 'like', $recherche)
-                    ->orWhere('description', 'like', $recherche);
-            });
-        }
+        $this->recherche->appliquer($requete, $filtres['q'] ?? null);
+        $this->blocages->exclure($requete, $lecteur, 'id_utilisateur');
 
         return $requete->paginate($parPage)->withQueryString();
+    }
+
+    /**
+     * Fil unifié de toutes les entités visibles (publié, outils, aide, marché,
+     * événements, rencontres), trié par date décroissante.
+     *
+     * @param  array{scope?: string, q?: string|null, par_page?: int}  $filtres
+     */
+    public function filUnifie(?User $lecteur, array $filtres = []): LengthAwarePaginator
+    {
+        $scope = $this->normaliserScope($filtres['scope'] ?? null);
+        $parPage = max(1, min(50, (int) ($filtres['par_page'] ?? 10)));
+        $recherche = $filtres['q'] ?? null;
+
+        $sources = [
+            $this->sourceUnion(
+                Publication::query()->where('statut', 'active'),
+                'publication', 'id_publication', 'date_creation', 'id_utilisateur',
+                $lecteur, $scope, $recherche,
+            ),
+            $this->sourceUnion(
+                Outil::query()->where('statut', 'actif'),
+                'outil', 'id_outil', 'created_at', 'id_proprietaire',
+                $lecteur, $scope, $recherche,
+            ),
+            $this->sourceUnion(
+                DemandeAide::query()->whereIn('statut', ['ouverte', 'pourvue']),
+                'demande_aide', 'id_demande_aide', 'created_at', 'id_utilisateur',
+                $lecteur, $scope, $recherche,
+            ),
+            $this->sourceUnion(
+                Annonce::query()->where('statut', 'active'),
+                'annonce', 'id_annonce', 'created_at', 'id_utilisateur',
+                $lecteur, $scope, $recherche,
+            ),
+            $this->sourceUnion(
+                Evenement::query()->where('statut', 'actif'),
+                'evenement', 'id_evenement', 'date_debut', 'id_utilisateur',
+                $lecteur, $scope, $recherche,
+            ),
+            $this->sourceUnion(
+                Rencontre::query()->where('statut', 'ouverte'),
+                'rencontre', 'id_rencontre', 'COALESCE(date_heure, created_at)', 'id_utilisateur',
+                $lecteur, $scope, $recherche,
+            ),
+        ];
+
+        $union = array_shift($sources)->toBase();
+
+        foreach ($sources as $source) {
+            $union->unionAll($source->toBase());
+        }
+
+        return DB::query()
+            ->fromSub($union, 'fil')
+            ->orderByDesc('date_publication')
+            ->orderByDesc('id')
+            ->paginate($parPage)
+            ->withQueryString();
+    }
+
+    public function enrichir(LengthAwarePaginator $fil): LengthAwarePaginator
+    {
+        $items = $fil->getCollection();
+
+        $auteurs = User::query()
+            ->whereIn('id_utilisateur', $items->pluck('id_utilisateur')->filter()->unique())
+            ->get()
+            ->keyBy('id_utilisateur');
+
+        $categories = Category::query()
+            ->whereIn('id_categorie', $items->pluck('id_categorie')->filter()->unique())
+            ->get()
+            ->keyBy('id_categorie');
+
+        $fil->getCollection()->transform(function ($item) use ($auteurs, $categories) {
+            $item->auteur = $auteurs->get($item->id_utilisateur);
+            $item->categorie = $categories->get($item->id_categorie);
+
+            return $item;
+        });
+
+        return $fil;
     }
 
     public function appliquerPortee(Builder $requete, ?User $lecteur, string $scope): Builder
@@ -118,33 +204,61 @@ class FeedService
 
     /**
      * Indique si un lecteur peut consulter une publication donnée.
-     *
-     * Les visiteurs non connectés n'ont accès qu'aux publications à l'échelle
-     * du pays. Un lecteur connecté doit partager le niveau géographique requis
-     * par la portée de la publication (quartier, ville ou pays).
      */
     public function peutVoir(?User $lecteur, Publication $publication): bool
     {
-        if ($publication->date_creation === null || $publication->statut !== 'active' || $publication->portee === null) {
+        if ($publication->date_creation === null || $publication->statut !== 'active') {
+            return false;
+        }
+
+        return $this->peutVoirEntite($lecteur, $publication);
+    }
+
+    /**
+     * Règle de visibilité générique, réutilisée par toutes les entités de
+     * contenu (publication, outil, aide, marché, événement, rencontre).
+     */
+    public function peutVoirEntite(?User $lecteur, Model $entite): bool
+    {
+        if ($entite->portee === null) {
             return false;
         }
 
         if ($lecteur === null) {
-            return $publication->portee === PorteeVisibilite::PAYS;
+            return $entite->portee === PorteeVisibilite::PAYS;
         }
 
-        return match ($publication->portee) {
+        return match ($entite->portee) {
             PorteeVisibilite::QUARTIER => $lecteur->id_quartier !== null
-                && $publication->id_quartier === $lecteur->id_quartier,
+                && (int) $entite->id_quartier === (int) $lecteur->id_quartier,
             PorteeVisibilite::VILLE => $lecteur->id_ville !== null
-                && $publication->id_ville === $lecteur->id_ville,
+                && (int) $entite->id_ville === (int) $lecteur->id_ville,
             PorteeVisibilite::PAYS => $lecteur->ville?->region?->pays?->id_pays !== null
-                && $publication->id_pays === $lecteur->ville->region->pays->id_pays,
+                && (int) $entite->id_pays === (int) $lecteur->ville->region->pays->id_pays,
         };
     }
 
     public function normaliserScope(?string $scope): string
     {
         return array_key_exists((string) $scope, self::RANGS) ? $scope : 'quartier';
+    }
+
+    private function sourceUnion(
+        Builder $requete,
+        string $type,
+        string $cle,
+        string $dateExpression,
+        string $colonneAuteur,
+        ?User $lecteur,
+        string $scope,
+        ?string $recherche,
+    ): Builder {
+        $this->appliquerPortee($requete, $lecteur, $scope);
+        $this->recherche->appliquer($requete, $recherche);
+        $this->blocages->exclure($requete, $lecteur, $colonneAuteur);
+
+        return $requete->selectRaw(
+            "'{$type}' as type, {$cle} as id, titre, description, {$dateExpression} as date_publication, portee, id_quartier, id_ville, id_pays, {$colonneAuteur} as id_utilisateur, id_categorie"
+        );
     }
 }

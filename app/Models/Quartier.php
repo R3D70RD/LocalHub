@@ -19,6 +19,7 @@ class Quartier extends Model
         'centroid_lat',
         'centroid_lng',
         'geohash',
+        'polygon',
         'actif',
     ];
 
@@ -27,6 +28,7 @@ class Quartier extends Model
         return [
             'centroid_lat' => 'float',
             'centroid_lng' => 'float',
+            'polygon' => 'array',
             'actif' => 'boolean',
         ];
     }

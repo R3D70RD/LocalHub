@@ -37,7 +37,7 @@ curl -X POST http://localhost:8080/api/v1/auth/token \
 Paramètres de `GET /publications` :
 
 - `scope` : `quartier` (défaut), `ville`, `pays`
-- `lang` : `fr` ou `en`
+- `lang` : accepté mais **ignoré** (compatibilité avec l'ancien client Android). Le contenu est toujours affiché dans la langue de l'auteur ; aucune traduction automatique n'est appliquée côté API.
 - `q` : recherche texte sur le titre et la description
 - `par_page` : 1 à 50 (défaut 15)
 
@@ -58,7 +58,6 @@ curl -X POST http://localhost:8080/api/v1/publications \
   -H 'Accept: application/json' \
   -F 'titre=Perceuse à prêter' \
   -F 'description=Disponible samedi.' \
-  -F 'lang=fr' \
   -F 'portee=quartier' \
   -F 'images[]=@/chemin/photo1.jpg' \
   -F 'images[]=@/chemin/photo2.jpg'
@@ -74,7 +73,7 @@ curl -X POST http://localhost:8080/api/v1/publications \
 | `PUT/PATCH` | `/outils/{id}` | Modifier (propriétaire) |
 | `DELETE` | `/outils/{id}` | Supprimer (propriétaire) |
 
-`GET /outils` accepte les mêmes `scope`, `lang`, `q`, `par_page` que le fil.
+`GET /outils` accepte les mêmes `scope`, `q`, `par_page` que le fil. Le paramètre `lang` n'est plus pris en charge (le contenu est dans la langue de l'auteur).
 
 ## Prêts
 
@@ -124,6 +123,80 @@ Protection contre les courses :
   `POST /prets/{id}/transition` : un retry avec la même clé rejoue la réponse
   d'origine (`Idempotent-Replayed: true`) au lieu de dupliquer l'opération.
 
+## Fil unifié
+
+| Méthode | Route | Description |
+|---|---|---|
+| `GET` | `/fil` | Fil unifié de toutes les entités visibles (publications, outils, aide, marché, événements, rencontres) |
+
+Paramètres : `scope`, `q`, `par_page`. Chaque élément expose `type`, `id`, `titre`,
+`description`, `date`, `portee`, `auteur` et `categorie`.
+
+## Demandes d'aide
+
+| Méthode | Route | Description |
+|---|---|---|
+| `GET` | `/demandes-aide` | Liste paginée, lecture publique |
+| `GET` | `/demandes-aide/{id}` | Détail |
+| `POST` | `/demandes-aide` | Créer une demande |
+| `PUT/PATCH` | `/demandes-aide/{id}` | Modifier (auteur) |
+| `DELETE` | `/demandes-aide/{id}` | Supprimer (auteur) |
+| `POST` | `/demandes-aide/{id}/offres` | Proposer une aide |
+
+`urgent` (booléen) et `date_limite` sont optionnels. Les listes acceptent `scope`, `q`, `par_page`.
+
+## Marché
+
+| Méthode | Route | Description |
+|---|---|---|
+| `GET` | `/annonces` | Liste paginée, lecture publique |
+| `GET` | `/annonces/{id}` | Détail |
+| `POST` | `/annonces` | Créer une annonce |
+| `PUT/PATCH` | `/annonces/{id}` | Modifier (auteur) |
+| `DELETE` | `/annonces/{id}` | Supprimer (auteur) |
+| `POST` | `/annonces/{id}/offres` | Faire une offre |
+| `POST` | `/annonces/{id}/messages` | Envoyer un message (chat de l’annonce) |
+
+`prix = 0` ⇒ échange gratuit : la réponse expose `gratuite: true` et `type_annonce`
+est ramené à `don` (sauf pour une `recherche`).
+
+## Événements
+
+| Méthode | Route | Description |
+|---|---|---|
+| `GET` | `/evenements` | Liste paginée, lecture publique |
+| `GET` | `/evenements/{id}` | Détail |
+| `POST` | `/evenements` | Créer un événement |
+| `PUT/PATCH` | `/evenements/{id}` | Modifier (auteur) |
+| `DELETE` | `/evenements/{id}` | Supprimer (auteur) |
+| `POST` | `/evenements/{id}/inscriptions` | S’inscrire (RSVP) |
+| `DELETE` | `/evenements/{id}/inscriptions` | Se désinscrire |
+
+Les dates (`date_debut`, `date_fin`) sont stockées en **UTC** ; `timezone_id` est un
+identifiant IANA (`America/Toronto`, …). La capacité est vérifiée à l’inscription
+(`422` si complet).
+
+## Rencontres sociales
+
+| Méthode | Route | Description |
+|---|---|---|
+| `GET` | `/rencontres` | Liste paginée, lecture publique |
+| `GET` | `/rencontres/{id}` | Détail |
+| `POST` | `/rencontres` | Créer une rencontre |
+| `PUT/PATCH` | `/rencontres/{id}` | Modifier (auteur) |
+| `DELETE` | `/rencontres/{id}` | Supprimer (auteur) |
+| `POST` | `/rencontres/{id}/membres` | Rejoindre |
+| `DELETE` | `/rencontres/{id}/membres` | Quitter |
+
+`interets` est une liste de chaînes ; `capacite` est optionnelle et vérifiée à l’adhésion.
+
+## Recherche
+
+Toutes les listes et le fil unifié acceptent `q`. Sur MySQL, la recherche utilise les
+index **FULLTEXT** (`MATCH … AGAINST` sur `titre` et `description`, fr/en) ; sous SQLite
+(tests), un repli `LIKE` est utilisé. Seul le texte de l’auteur est recherché, sans
+recherche interlangue.
+
 ## Notifications
 
 | Méthode | Route | Description |
@@ -131,6 +204,40 @@ Protection contre les courses :
 | `GET` | `/notifications` | Mes notifications |
 | `POST` | `/notifications/{id}/read` | Marquer comme lue |
 | `POST` | `/notifications/read-all` | Tout marquer comme lu |
+
+## Confiance et sécurité
+
+| Méthode | Route | Description |
+|---|---|---|
+| `POST` | `/signalements` | Signaler un contenu (`cible_type`, `cible_id`, `motif`, `description`) |
+| `GET` | `/moderation` | File de modération (gestionnaire/modérateur) |
+| `POST` | `/moderation/{id}/traiter` | Traiter un signalement (`action` : `rejeter`, `masquer`, `avertir`, `supprimer`) |
+| `POST` | `/utilisateurs/{id}/bloquer` | Bloquer un utilisateur |
+| `DELETE` | `/utilisateurs/{id}/bloquer` | Débloquer |
+| `POST` | `/prets/{id}/avis` | Noter un prêt terminé (`note` 1–5, `commentaire`) |
+
+`cible_type` accepte : `publication`, `outil`, `demande_aide`, `annonce`, `evenement`,
+`rencontre`, `utilisateur`. Chaque action de modération est journalisée dans
+`moderation_action`. Les contenus des utilisateurs bloqués sont exclus du fil et des
+listes du bloqueur. Un avis de prêt met à jour le score `fiabilite` (0–100) du voisin noté.
+
+## Messagerie privée
+
+| Méthode | Route | Description |
+|---|---|---|
+| `GET` | `/messages` | Mes conversations |
+| `POST` | `/messages` | Démarrer une conversation (`destinataire`) |
+| `GET` | `/messages/{id}` | Détail d’une conversation (membres) |
+| `POST` | `/messages/{id}` | Envoyer un message (`contenu`) |
+
+## Suivi de publication
+
+| Méthode | Route | Description |
+|---|---|---|
+| `POST` | `/publications/{id}/suivre` | Suivre une publication |
+| `DELETE` | `/publications/{id}/suivre` | Ne plus suivre |
+
+Les suiveurs reçoivent une notification lors d’un nouveau commentaire.
 
 ## Codes d'erreur notables
 

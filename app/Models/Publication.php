@@ -2,7 +2,6 @@
 
 namespace App\Models;
 
-use App\Enums\Langue;
 use App\Enums\PorteeVisibilite;
 use App\Models\Concerns\HasGeoContext;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -29,7 +28,6 @@ class Publication extends Model
         'date_creation',
         'id_utilisateur',
         'id_categorie',
-        'lang',
         'portee',
         'image_path',
         'statut',
@@ -42,7 +40,6 @@ class Publication extends Model
             'date_creation' => 'datetime',
             'date_heure' => 'datetime',
             'prix' => 'decimal:2',
-            'lang' => Langue::class,
             'portee' => PorteeVisibilite::class,
             'version' => 'integer',
         ];

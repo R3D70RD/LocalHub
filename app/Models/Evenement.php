@@ -2,7 +2,6 @@
 
 namespace App\Models;
 
-use App\Enums\Langue;
 use App\Enums\PorteeVisibilite;
 use App\Models\Concerns\HasGeoContext;
 use Illuminate\Database\Eloquent\Model;
@@ -25,11 +24,10 @@ class Evenement extends Model
         'id_pays',
         'titre',
         'description',
-        'lang',
         'portee',
         'date_debut',
         'date_fin',
-        'timezone',
+        'timezone_id',
         'lieu',
         'capacite',
         'statut',
@@ -38,7 +36,6 @@ class Evenement extends Model
     protected function casts(): array
     {
         return [
-            'lang' => Langue::class,
             'portee' => PorteeVisibilite::class,
             'date_debut' => 'datetime',
             'date_fin' => 'datetime',

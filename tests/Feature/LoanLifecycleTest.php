@@ -119,7 +119,6 @@ class LoanLifecycleTest extends TestCase
             'id_pays' => $geo['pays']->id_pays,
             'titre' => 'Perceuse',
             'description' => 'Perceuse sans fil',
-            'lang' => 'fr',
             'portee' => 'quartier',
             'etat' => 'bon',
             'disponible' => true,

@@ -2,7 +2,6 @@
 
 namespace Database\Factories;
 
-use App\Enums\Langue;
 use App\Models\Commentaire;
 use App\Models\Publication;
 use App\Models\User;
@@ -21,7 +20,6 @@ class CommentaireFactory extends Factory
             'id_publication' => Publication::factory(),
             'id_utilisateur' => User::factory(),
             'contenu' => fake()->sentence(),
-            'lang' => Langue::FR,
         ];
     }
 }

@@ -2,7 +2,6 @@
 
 namespace App\Models;
 
-use App\Enums\Langue;
 use App\Enums\PorteeVisibilite;
 use App\Models\Concerns\HasGeoContext;
 use Illuminate\Database\Eloquent\Model;
@@ -25,7 +24,6 @@ class DemandeAide extends Model
         'id_pays',
         'titre',
         'description',
-        'lang',
         'portee',
         'urgent',
         'date_limite',
@@ -35,7 +33,6 @@ class DemandeAide extends Model
     protected function casts(): array
     {
         return [
-            'lang' => Langue::class,
             'portee' => PorteeVisibilite::class,
             'urgent' => 'boolean',
             'date_limite' => 'date',

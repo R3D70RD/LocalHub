@@ -2,11 +2,12 @@
 
 namespace Database\Seeders;
 
-use App\Enums\Langue;
 use App\Enums\PorteeVisibilite;
 use App\Models\Annonce;
 use App\Models\Category;
 use App\Models\Commentaire;
+use App\Models\DemandeAide;
+use App\Models\Evenement;
 use App\Models\Outil;
 use App\Models\ParametreUtilisateur;
 use App\Models\Pays;
@@ -14,6 +15,7 @@ use App\Models\Pret;
 use App\Models\Publication;
 use App\Models\Quartier;
 use App\Models\Reaction;
+use App\Models\Rencontre;
 use App\Models\User;
 use App\Models\Ville;
 use App\Support\Geohash;
@@ -83,7 +85,6 @@ class DatabaseSeeder extends Seeder
                 'utilisateur' => $users['Sarah'],
                 'titre' => 'Tondeuse à prêter pour le week-end',
                 'description' => 'Ma tondeuse est disponible samedi et dimanche. Apportez votre propre essence.',
-                'lang' => Langue::FR,
                 'portee' => PorteeVisibilite::QUARTIER,
                 'categorie' => 'outils',
             ],
@@ -91,7 +92,6 @@ class DatabaseSeeder extends Seeder
                 'utilisateur' => $users['Alex'],
                 'titre' => 'Looking for moving boxes',
                 'description' => 'Anyone in the neighbourhood has spare cardboard boxes for a move next week?',
-                'lang' => Langue::EN,
                 'portee' => PorteeVisibilite::QUARTIER,
                 'categorie' => 'autres',
             ],
@@ -99,7 +99,6 @@ class DatabaseSeeder extends Seeder
                 'utilisateur' => $users['Emma'],
                 'titre' => 'Vente de garage à Verdun',
                 'description' => 'Samedi matin, plusieurs meubles et livres à petit prix.',
-                'lang' => Langue::FR,
                 'portee' => PorteeVisibilite::VILLE,
                 'categorie' => 'meubles',
             ],
@@ -107,7 +106,6 @@ class DatabaseSeeder extends Seeder
                 'utilisateur' => $users['Maxime'],
                 'titre' => 'Cours de guitare pour débutants',
                 'description' => 'Je propose des cours dans le quartier, première séance gratuite.',
-                'lang' => Langue::FR,
                 'portee' => PorteeVisibilite::VILLE,
                 'categorie' => 'services',
             ],
@@ -115,7 +113,6 @@ class DatabaseSeeder extends Seeder
                 'utilisateur' => $users['Sarah'],
                 'titre' => 'Atelier de réparation de vélos ouvert à tous',
                 'description' => 'Des bénévoles partagent leurs outils partout au pays pour réparer votre vélo ce printemps.',
-                'lang' => Langue::FR,
                 'portee' => PorteeVisibilite::PAYS,
                 'categorie' => 'services',
             ],
@@ -123,7 +120,6 @@ class DatabaseSeeder extends Seeder
                 'utilisateur' => $users['Alex'],
                 'titre' => 'Coast-to-coast community garden guide',
                 'description' => 'A free English guide to starting a community garden anywhere in the country.',
-                'lang' => Langue::EN,
                 'portee' => PorteeVisibilite::PAYS,
                 'categorie' => 'autres',
             ],
@@ -141,7 +137,6 @@ class DatabaseSeeder extends Seeder
                     'id_quartier' => $data['utilisateur']->id_quartier,
                     'id_ville' => $data['utilisateur']->id_ville,
                     'id_pays' => $pays->id_pays,
-                    'lang' => $data['lang'],
                     'portee' => $data['portee'],
                     'statut' => 'active',
                     'date_creation' => now(),
@@ -157,7 +152,6 @@ class DatabaseSeeder extends Seeder
                     ],
                     [
                         'contenu' => 'Je suis intéressé, je peux passer samedi matin.',
-                        'lang' => Langue::FR,
                     ],
                 );
 
@@ -190,7 +184,6 @@ class DatabaseSeeder extends Seeder
                     'id_quartier' => $data['proprietaire']->id_quartier,
                     'id_ville' => $data['proprietaire']->id_ville,
                     'id_pays' => $pays->id_pays,
-                    'lang' => Langue::FR,
                     'portee' => PorteeVisibilite::QUARTIER,
                     'etat' => 'bon',
                     'disponible' => true,
@@ -232,13 +225,88 @@ class DatabaseSeeder extends Seeder
                 'id_quartier' => $users['Thomas']->id_quartier,
                 'id_ville' => $users['Thomas']->id_ville,
                 'id_pays' => $pays->id_pays,
-                'lang' => Langue::FR,
                 'portee' => PorteeVisibilite::VILLE,
                 'type_annonce' => 'don',
                 'prix' => 0,
                 'statut' => 'active',
             ],
         );
+
+        DemandeAide::firstOrCreate(
+            [
+                'id_utilisateur' => $users['Thomas']->id_utilisateur,
+                'titre' => 'Coup de main pour un déménagement',
+            ],
+            [
+                'description' => 'Besoin de deux personnes samedi matin pour porter des boîtes.',
+                'id_categorie' => $categories['services'] ?? null,
+                'id_quartier' => $users['Thomas']->id_quartier,
+                'id_ville' => $users['Thomas']->id_ville,
+                'id_pays' => $pays->id_pays,
+                'portee' => PorteeVisibilite::VILLE,
+                'urgent' => true,
+                'statut' => 'ouverte',
+            ],
+        );
+
+        Evenement::firstOrCreate(
+            [
+                'id_utilisateur' => $users['Emma']->id_utilisateur,
+                'titre' => 'Fête de quartier à Verdun',
+            ],
+            [
+                'description' => 'Rencontre conviviale au parc, apportez un plat à partager.',
+                'id_categorie' => $categories['autres'] ?? null,
+                'id_quartier' => $users['Emma']->id_quartier,
+                'id_ville' => $users['Emma']->id_ville,
+                'id_pays' => $pays->id_pays,
+                'portee' => PorteeVisibilite::QUARTIER,
+                'date_debut' => now()->addDays(10)->setTime(15, 0),
+                'timezone_id' => 'America/Toronto',
+                'lieu' => 'Parc de Verdun',
+                'capacite' => 40,
+                'statut' => 'actif',
+            ],
+        );
+
+        Rencontre::firstOrCreate(
+            [
+                'id_utilisateur' => $users['Maxime']->id_utilisateur,
+                'titre' => 'Club de lecture',
+            ],
+            [
+                'description' => 'On se retrouve pour parler du livre du mois.',
+                'id_categorie' => $categories['autres'] ?? null,
+                'id_quartier' => $users['Maxime']->id_quartier,
+                'id_ville' => $users['Maxime']->id_ville,
+                'id_pays' => $pays->id_pays,
+                'portee' => PorteeVisibilite::VILLE,
+                'date_heure' => now()->addDays(7)->setTime(19, 0),
+                'lieu' => 'Café du coin',
+                'capacite' => 8,
+                'interets' => ['lecture', 'discussion'],
+                'statut' => 'ouverte',
+            ],
+        );
+
+        $verdun = Quartier::query()->where('nom_fr', 'Verdun')->first();
+
+        if ($verdun !== null) {
+            // Petit polygone de démonstration (GeoJSON) ; les limites réelles
+            // s'importent avec `quartiers:importer-polygones`.
+            $verdun->forceFill([
+                'polygon' => [
+                    'type' => 'Polygon',
+                    'coordinates' => [[
+                        [-73.5780, 45.4530],
+                        [-73.5580, 45.4530],
+                        [-73.5580, 45.4650],
+                        [-73.5780, 45.4650],
+                        [-73.5780, 45.4530],
+                    ]],
+                ],
+            ])->save();
+        }
     }
 
     private function localiser(User $utilisateur, string $nomVille, ?string $nomQuartier): void

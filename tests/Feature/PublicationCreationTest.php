@@ -22,7 +22,6 @@ class PublicationCreationTest extends TestCase
             'description' => 'Disponible pour le voisinage.',
             'prix' => 0,
             'id_categorie' => $categorie->id_categorie,
-            'lang' => 'fr',
             'portee' => 'quartier',
             'statut' => 'active',
         ]);
@@ -32,7 +31,6 @@ class PublicationCreationTest extends TestCase
         $this->assertDatabaseHas('publication', [
             'titre' => 'Tondeuse à prêter',
             'id_utilisateur' => $utilisateur->id_utilisateur,
-            'lang' => 'fr',
             'portee' => 'quartier',
         ]);
     }

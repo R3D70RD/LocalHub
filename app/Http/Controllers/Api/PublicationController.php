@@ -27,7 +27,8 @@ class PublicationController extends Controller
         // pour personnaliser la portée géographique du fil.
         $publications = $this->feed->fil(Auth::guard('sanctum')->user(), [
             'scope' => $request->query('scope'),
-            'lang' => $request->query('lang'),
+            // Paramètre `lang` conservé pour compatibilité avec l'ancien client
+            // Android : il est accepté mais ignoré (aucun filtre de langue).
             'q' => $request->query('q'),
             'par_page' => (int) $request->query('par_page', 15),
         ]);

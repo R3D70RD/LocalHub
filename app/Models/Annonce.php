@@ -2,7 +2,6 @@
 
 namespace App\Models;
 
-use App\Enums\Langue;
 use App\Enums\PorteeVisibilite;
 use App\Models\Concerns\HasGeoContext;
 use Illuminate\Database\Eloquent\Model;
@@ -25,7 +24,6 @@ class Annonce extends Model
         'id_pays',
         'titre',
         'description',
-        'lang',
         'portee',
         'type_annonce',
         'prix',
@@ -35,7 +33,6 @@ class Annonce extends Model
     protected function casts(): array
     {
         return [
-            'lang' => Langue::class,
             'portee' => PorteeVisibilite::class,
             'prix' => 'decimal:2',
         ];
@@ -54,6 +51,14 @@ class Annonce extends Model
     public function offres(): HasMany
     {
         return $this->hasMany(OffreAnnonce::class, 'id_annonce', 'id_annonce');
+    }
+
+    /**
+     * Un prix nul signifie un échange gratuit (don).
+     */
+    public function estGratuite(): bool
+    {
+        return $this->prix !== null && (float) $this->prix === 0.0;
     }
 
     public function messages(): HasMany

@@ -111,7 +111,6 @@ class PretController extends Controller
     {
         $donnees = $request->validate([
             'contenu' => ['required', 'string', 'max:2000'],
-            'lang' => ['nullable', 'in:fr,en'],
         ]);
 
         try {
@@ -119,7 +118,6 @@ class PretController extends Controller
                 $pret,
                 $request->user(),
                 $donnees['contenu'],
-                $donnees['lang'] ?? null,
             );
         } catch (Throwable $exception) {
             return $this->reponseErreur($exception);

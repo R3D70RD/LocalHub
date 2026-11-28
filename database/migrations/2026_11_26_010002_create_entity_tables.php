@@ -17,7 +17,6 @@ return new class extends Migration
             $table->unsignedInteger('id_pays')->nullable();
             $table->string('titre', 150);
             $table->text('description');
-            $table->string('lang', 2)->default('fr');
             $table->string('portee', 20)->default('quartier');
             $table->boolean('urgent')->default(false);
             $table->date('date_limite')->nullable();
@@ -40,7 +39,6 @@ return new class extends Migration
             $table->unsignedInteger('id_pays')->nullable();
             $table->string('titre', 150);
             $table->text('description');
-            $table->string('lang', 2)->default('fr');
             $table->string('portee', 20)->default('quartier');
             $table->string('statut', 20)->default('proposee');
             $table->timestamps();
@@ -60,11 +58,10 @@ return new class extends Migration
             $table->unsignedInteger('id_pays')->nullable();
             $table->string('titre', 150);
             $table->text('description');
-            $table->string('lang', 2)->default('fr');
             $table->string('portee', 20)->default('quartier');
             $table->dateTime('date_debut');
             $table->dateTime('date_fin')->nullable();
-            $table->string('timezone', 64)->default('America/Toronto');
+            $table->string('timezone_id', 64)->default('America/Toronto');
             $table->string('lieu', 255)->nullable();
             $table->unsignedSmallInteger('capacite')->nullable();
             $table->string('statut', 20)->default('actif');
@@ -100,7 +97,6 @@ return new class extends Migration
             $table->unsignedInteger('id_pays')->nullable();
             $table->string('titre', 150);
             $table->text('description');
-            $table->string('lang', 2)->default('fr');
             $table->string('portee', 20)->default('quartier');
             $table->string('type_annonce', 20)->default('vente');
             $table->decimal('prix', 10, 2)->nullable();
@@ -138,7 +134,6 @@ return new class extends Migration
             $table->unsignedInteger('id_pays')->nullable();
             $table->string('titre', 150);
             $table->text('description');
-            $table->string('lang', 2)->default('fr');
             $table->string('portee', 20)->default('quartier');
             $table->string('etat', 20)->default('bon');
             $table->decimal('caution', 10, 2)->nullable();
@@ -191,7 +186,6 @@ return new class extends Migration
             $table->unsignedInteger('id_pays')->nullable();
             $table->string('titre', 150);
             $table->text('description');
-            $table->string('lang', 2)->default('fr');
             $table->string('portee', 20)->default('quartier');
             $table->dateTime('date_heure')->nullable();
             $table->string('lieu', 255)->nullable();
@@ -226,7 +220,6 @@ return new class extends Migration
             $table->unsignedInteger('id_annonce')->nullable();
             $table->unsignedInteger('id_expediteur');
             $table->text('contenu');
-            $table->string('lang', 2)->default('fr');
             $table->timestamp('lu_at')->nullable();
             $table->timestamps();
 

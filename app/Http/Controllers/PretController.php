@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Enums\StatutPret;
 use App\Exceptions\ActionNonAutoriseeException;
 use App\Exceptions\ConflitPretException;
 use App\Exceptions\TransitionInvalideException;
@@ -13,7 +14,6 @@ use App\Services\LoanService;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Validation\Rule;
 
 class PretController extends Controller
 {
@@ -60,6 +60,10 @@ class PretController extends Controller
         return view('prets.show', [
             'pret' => $pret,
             'actions' => $this->prets->actionsAutorisees($pret, request()->user()),
+            'peutNoter' => $pret->statut === StatutPret::RETOURNE,
+            'avisExistant' => $pret->avis()
+                ->where('id_auteur', request()->user()->id_utilisateur)
+                ->exists(),
         ]);
     }
 
@@ -85,7 +89,6 @@ class PretController extends Controller
     {
         $donnees = $request->validate([
             'contenu' => ['required', 'string', 'max:2000'],
-            'lang' => ['nullable', Rule::in(['fr', 'en'])],
         ]);
 
         try {
@@ -93,7 +96,6 @@ class PretController extends Controller
                 $pret,
                 $request->user(),
                 $donnees['contenu'],
-                $donnees['lang'] ?? null,
             );
         } catch (ActionNonAutoriseeException $exception) {
             return back()->withErrors(['contenu' => $exception->getMessage()]);

@@ -16,6 +16,7 @@ class CompteController extends Controller
         return view('account.show', [
             'user' => $request->user(),
             'publications' => $request->user()->publications()->latest()->get(),
+            'bloques' => $request->user()->blocages()->with('bloque')->get(),
         ]);
     }
 

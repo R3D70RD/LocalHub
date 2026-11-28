@@ -8,7 +8,6 @@ use App\Models\Publication;
 use App\Services\PublicationService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Validation\Rule;
 
 class CommentaireController extends Controller
 {
@@ -16,14 +15,12 @@ class CommentaireController extends Controller
     {
         $donnees = $request->validate([
             'contenu' => ['required', 'string', 'max:2000'],
-            'lang' => ['nullable', Rule::in(['fr', 'en'])],
         ]);
 
         $commentaire = $publications->commenter(
             $publication,
             $request->user(),
             $donnees['contenu'],
-            $donnees['lang'] ?? null,
         );
 
         $commentaire->load('utilisateur');

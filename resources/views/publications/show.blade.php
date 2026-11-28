@@ -22,9 +22,6 @@
                             {{ $publication->category->nom }}
                         </span>
                     @endif
-                    <span class="rounded-full bg-slate-100 px-2.5 py-1 font-medium uppercase text-slate-600">
-                        {{ $publication->lang?->value }}
-                    </span>
                 </div>
             </div>
 
@@ -76,6 +73,8 @@
 
         <p class="mt-6 whitespace-pre-line text-sm text-slate-700">{{ $publication->description }}</p>
 
+        @include('publications._traduction')
+
         <div class="mt-6 flex flex-wrap items-center gap-2 border-t border-slate-100 pt-4">
             @auth
                 @foreach (['j_aime' => '👍', 'utile' => '💡', 'merci' => '🙏'] as $type => $emoji)
@@ -94,6 +93,57 @@
                 <span class="text-sm text-slate-500">👍 {{ $publication->reactions->count() }}</span>
             @endauth
         </div>
+
+        @auth
+            <div class="mt-4 flex flex-wrap items-center gap-3 border-t border-slate-100 pt-4 text-sm">
+                @if ($suivi)
+                    <form method="post" action="{{ route('publications.ne-plus-suivre', $publication) }}">
+                        @csrf
+                        @method('DELETE')
+                        <button type="submit" class="rounded-md border border-slate-300 px-3 py-1.5 text-xs text-slate-700 hover:bg-slate-100">{{ __('interface.unfollow') }}</button>
+                    </form>
+                @else
+                    <form method="post" action="{{ route('publications.suivre', $publication) }}">
+                        @csrf
+                        <button type="submit" class="rounded-md border border-slate-300 px-3 py-1.5 text-xs text-slate-700 hover:bg-slate-100">{{ __('interface.follow') }}</button>
+                    </form>
+                @endif
+
+                @if ((int) auth()->id() !== (int) $publication->id_utilisateur && $publication->utilisateur)
+                    @if ($bloqueAuteur)
+                        <form method="post" action="{{ route('blocages.destroy', $publication->utilisateur) }}">
+                            @csrf
+                            @method('DELETE')
+                            <button type="submit" class="rounded-md border border-slate-300 px-3 py-1.5 text-xs text-slate-700 hover:bg-slate-100">{{ __('interface.unblock_user') }}</button>
+                        </form>
+                    @else
+                        <form method="post" action="{{ route('blocages.store', $publication->utilisateur) }}">
+                            @csrf
+                            <button type="submit" class="rounded-md border border-slate-300 px-3 py-1.5 text-xs text-slate-700 hover:bg-slate-100">{{ __('interface.block_user') }}</button>
+                        </form>
+                    @endif
+                @endif
+            </div>
+
+            <details class="mt-4 text-sm">
+                <summary class="cursor-pointer text-slate-500 hover:text-slate-800">{{ __('interface.report') }}</summary>
+                <form method="post" action="{{ route('signalements.store') }}" class="mt-3 space-y-3">
+                    @csrf
+                    <input type="hidden" name="cible_type" value="publication">
+                    <input type="hidden" name="cible_id" value="{{ $publication->id_publication }}">
+                    <select name="motif" class="w-full rounded-md border border-slate-300 px-3 py-2 text-sm shadow-sm">
+                        <option value="spam">{{ __('interface.report_reason_spam') }}</option>
+                        <option value="harcelement">{{ __('interface.report_reason_harcelement') }}</option>
+                        <option value="contenu_illegal">{{ __('interface.report_reason_contenu_illegal') }}</option>
+                        <option value="autre">{{ __('interface.report_reason_autre') }}</option>
+                    </select>
+                    <textarea name="description" rows="2" placeholder="{{ __('interface.report_details') }}"
+                              class="w-full rounded-md border border-slate-300 px-3 py-2 text-sm shadow-sm"></textarea>
+                    @error('motif') <p class="text-sm text-rose-600">{{ $message }}</p> @enderror
+                    <button type="submit" class="rounded-md bg-slate-900 px-4 py-2 text-sm font-medium text-white hover:bg-slate-700">{{ __('interface.send_report') }}</button>
+                </form>
+            </details>
+        @endauth
     </article>
 
     <section class="mt-8 rounded-lg border border-slate-200 bg-white p-6 shadow-sm">

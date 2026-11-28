@@ -2,7 +2,7 @@
 
 > Document vivant. À mettre à jour au fur et à mesure des phases.
 > Dernière mise à jour : **2026-11-27**
-> Statut : **Phase 0 ✅ · Phase 1 ✅ (MVP livrable) · Phases 2/3 ⏳**
+> Statut : **Phase 0 ✅ · Phase 1 ✅ (MVP livrable) · Phase 2 ✅ · Phase 3 ⏳**
 
 ---
 
@@ -27,8 +27,8 @@ Le produit converge vers six types de fonctionnalités : fil de quartier, prêt 
 | Géo | `geohash` + tables de référence `ville`/`quartier` + coordonnées |
 | Données héritées | Jetables : `migrate:fresh --seed` plutôt qu'une migration de données |
 | Marché cible | Le Canada d'abord : aucune expansion internationale tant que le produit n'a pas réussi sur le marché canadien |
-| Langue du contenu | L'auteur écrit dans la langue de son choix ; aucun champ `lang`, aucun filtre `lang`, aucune traduction automatique ou à la demande |
-| Compatibilité Android | Android consomme déjà les endpoints de **lecture des publications** de `/api/v1` : ce contrat de lecture reste compatible jusqu'à la mise à jour du client. Toutes les autres surfaces sont modifiables |
+| Langue du contenu | L'auteur écrit dans la langue de son choix ; aucun champ `lang`, aucun filtre `lang`, aucune traduction automatique. Une traduction **à la demande** (bouton sous chaque publication) est proposée via un service pluggable ; le résultat est mis en cache dans le navigateur, jamais en base |
+| Compatibilité Android | Android consomme déjà les endpoints de **lecture des publications** de `/api/v1` : le paramètre `lang` reste accepté (mais ignoré) pour ne pas casser les requêtes existantes. La clé de réponse `lang` a été retirée à la demande explicite de l'utilisateur. Toutes les autres surfaces sont modifiables |
 
 > Écart par rapport à la feuille de route initiale accepté par l'utilisateur : la feuille de route
 > écrivait `villes`/`quartiers` et `ville_id`/`quartier_id` ; la décision de nommage verrouillée
@@ -44,27 +44,37 @@ Le produit converge vers six types de fonctionnalités : fil de quartier, prêt 
 
 **Identité (terminé) :** `utilisateur` (étendue avec `locale`, `id_ville`, `id_quartier`, `latitude`, `longitude`, `geohash`, `precision_pref`, `fiabilite`), `parametre_utilisateur`, `personal_access_tokens` (Sanctum).
 
-**Contenu (terminé) :** `publication`, `commentaire`, `reaction`, `media` (polymorphe `cible_type`/`cible_id`), `outil`, `pret`, `message`.
+**Contenu (phase 2 opérationnelle) :** `publication`, `commentaire`, `reaction`, `media`, `outil`, `pret`, `message`, `demande_aide`, `offre_aide`, `evenement`, `inscription_evenement`, `annonce`, `offre_annonce`, `rencontre`, `rencontre_membre`.
+
+**Confiance, messagerie et géo (phase 2) :** `signalement`, `moderation_action`, `blocage`, `avis_pret`, `conversation`, `conversation_membre`, `suivi`, et la colonne `quartier.polygon` (GeoJSON).
 
 **Opérations (terminé) :** `notification` (table au singulier avec morph `notifiable_*` et `lu_at`), `idempotence`.
 
-**Tables de la phase 2 créées vides :** `demande_aide`, `offre_aide`, `evenement`, `inscription_evenement`, `annonce`, `offre_annonce`, `rencontre`, `rencontre_membre`.
-
-**Pas encore créées :** `signalement`, `moderation_action`, `blocage`, `avis_pret`. Aucune table de traduction n'est prévue : le contenu reste dans la langue de l'auteur, sans traduction automatique ni à la demande.
-
 **Protection contre les accès concurrents sur `pret` :** une colonne unique nullable `cle_active` (définie à `outil:<id_outil>` pour les prêts actifs, effacée aux états terminaux) ainsi qu'un verrou optimiste `version`. C'est l'équivalent portable de l'« index partiel » de la feuille de route — MySQL 8.4 ne prend pas en charge les index partiels en SQL, et les tests s'exécutent sur SQLite.
 
-> Le fil n'affiche actuellement que `publication`. L'union de toutes les entités visibles
-> est une tâche de la phase 2 ; les tables des autres entités de la phase 1 sont volontairement vides.
+> Le fil d'accueil (`/`) est désormais **unifié** : il agrège les publications, outils,
+> demandes d'aide, annonces, événements et rencontres visibles, via une union SQL paginée.
+> Chaque entité conserve sa propre liste filtrée par périmètre et recherche.
 
 ### Couche de services (partagée entre le Web et l'API)
 
 | Service | Responsabilité |
 |---|---|
-| `FeedService` | Périmétrage géo + filtre `q` pour les publications et les outils (filtre `lang` supprimé en phase 2 ; conservé comme no-op sur l'endpoint de lecture des publications exposé à Android) |
-| `PublicationService` | CRUD des publications, commentaires, bascule des réactions, `media` multi-images |
+| `FeedService` | Périmétrage géo, recherche, exclusion des bloqués, fil unifié (`filUnifie`) et enrichissement auteur/catégorie |
+| `RechercheService` | Recherche plein texte MySQL (`MATCH … AGAINST`) avec repli `LIKE` sous SQLite |
+| `ContenuService` | Base partagée des entités de la phase 2 (pagination géo + recherche + blocage) |
+| `PublicationService` | CRUD des publications, commentaires, réactions, médias, notifications aux suiveurs |
 | `OutilService` | CRUD des outils, géolocalisation, médias |
 | `LoanService` | Machine à états des prêts, contrôles d'acteur, verrou optimiste, chat, balayage des retards |
+| `DemandeAideService` | Demandes d'aide et offres (`urgent`, `date_limite`) |
+| `AnnonceService` | Annonces et offres, chat, règle `prix = 0` ⇒ gratuit |
+| `EvenementService` | Événements (UTC + `timezone_id` IANA), RSVP et capacité |
+| `RencontreService` | Rencontres sociales (intérêts, capacité, membres) |
+| `SignalementService` | Signalements, file de modération, audit `moderation_action` |
+| `BlocageService` | Blocage/déblocage et exclusion des contenus bloqués |
+| `AvisPretService` + `FiabiliteService` | Avis après prêt et recalcul du score `fiabilite` |
+| `ConversationService` | Messagerie privée 1-à-1 et notifications |
+| `SuiviService` | Suivi de publication et notifications aux suiveurs |
 | `IdempotencyService` | Rejeu des requêtes avec `Idempotency-Key` |
 | `NotificationService` | Lignes de notifications intégrées |
 | `LocalisationService` | Coordonnées → ville/quartier + geohash |
@@ -148,21 +158,31 @@ litige    → resoudre
 
 ---
 
-## 6. Phase 2 — V2 (toute la valeur canadienne) ⏳
+## 6. Phase 2 — V2 (toute la valeur canadienne) ✅
 
 Objectif : compléter les six types de fonctionnalités et ajouter les outils opérationnels de confiance.
 
-- [ ] Demandes d'aide — `demande_aide` + `offre_aide` ; priorité `urgent`
-- [ ] Marché — `annonce` + `offre_annonce` + chat ; `prix = 0` ⇒ échange gratuit
-- [ ] Événements — `evenement` + `inscription_evenement` ; UTC + `timezone_id` IANA ; RSVP
-- [ ] Rencontres sociales — `rencontre` + `rencontre_membre` ; tags d'intérêts, capacité
-- [ ] Confiance/sécurité — file `signalement`, audit `moderation_action`, `blocage`, score `fiabilite`, `avis_pret`
-- [ ] Langue du contenu — le contenu est affiché dans la langue de l'auteur. Supprimer le champ `lang` choisi par l'auteur de tous les formulaires de création/édition et des requêtes d'écriture ; supprimer le filtre `lang` de `FeedService`, `OutilService`, des endpoints de liste Web et API. Aucune traduction, automatique ou à la demande. **Exception :** sur l'API de **lecture** des publications, conserver `lang` comme paramètre de requête ignoré et comme clé de réponse obsolète jusqu'à la mise à jour du client Android. La recherche interlangue est hors périmètre
-- [ ] Recherche — plein texte MySQL (fr/en) sur toutes les entités ; recherche uniquement dans le texte de l'auteur, sans recherche interlangue
-- [ ] Polygones officiels de quartier — importer les limites municipales/StatCan dans `quartiers.polygon`
-- [ ] Union du fil sur toutes les entités visibles (actuellement `publication` uniquement)
+- [x] Demandes d'aide — `demande_aide` + `offre_aide` ; priorité `urgent`
+- [x] Marché — `annonce` + `offre_annonce` + chat ; `prix = 0` ⇒ échange gratuit
+- [x] Événements — `evenement` + `inscription_evenement` ; UTC + `timezone_id` IANA ; RSVP
+- [x] Rencontres sociales — `rencontre` + `rencontre_membre` ; tags d'intérêts, capacité
+- [x] Confiance/sécurité — file `signalement`, audit `moderation_action`, `blocage`, score `fiabilite`, `avis_pret`
+- [x] Langue du contenu — contenu affiché dans la langue de l'auteur : colonne `lang` supprimée partout, filtre et formulaires retirés ; traduction **à la demande** via `TraductionService` pluggable (driver factice par défaut, LibreTranslate configurable), résultat mis en cache dans le navigateur. La clé de réponse `lang` a été retirée de l'API de lecture ; le paramètre `lang` reste accepté mais ignoré. La recherche interlangue est hors périmètre
+- [x] Recherche — index FULLTEXT MySQL (fr/en) sur toutes les entités, `MATCH … AGAINST` avec repli `LIKE` sous SQLite ; recherche uniquement dans le texte de l'auteur
+- [x] Polygones officiels de quartier — colonne `quartier.polygon` (GeoJSON) + commande `quartiers:importer-polygones` + polygone de démonstration
+- [x] Union du fil — `/` agrège publications, outils, aide, marché, événements et rencontres visibles (`FeedService::filUnifie`)
+- [x] Système de messagerie et de suivi de publication — conversations 1-à-1 (`conversation`/`conversation_membre`), suivi (`suivi`) + notifications enrichies
 
-**Critères de sortie :** les six types de fonctionnalités sont opérationnels avec une interface FR/EN et un contenu dans la langue de l'auteur ; la file de modération est opérationnelle ; les événements sont corrects aux changements d'heure ; marché/aide/rencontres suivent les mêmes conventions de périmétrage et de services ; l'API de lecture des publications reste compatible avec le client Android actuel.
+**Critères de sortie**
+
+- [x] Les six types de fonctionnalités sont opérationnels avec une interface FR/EN et un contenu dans la langue de l'auteur
+- [x] La file de modération est opérationnelle (`signalement` → `moderation_action`)
+- [x] Les événements sont corrects aux changements d'heure (stockage UTC, `timezone_id` IANA ; tests été/hiver)
+- [x] Marché/aide/rencontres suivent les mêmes conventions de périmétrage et de services (`ContenuService`, `FeedService::appliquerPortee`)
+- [x] Les utilisateurs peuvent communiquer par un espace de messagerie dédié avec des notifications améliorées
+- [~] L'API de lecture des publications reste compatible : `lang` est toujours accepté en entrée (ignoré), mais la clé de réponse a été retirée sur décision explicite de l'utilisateur ; à valider avec le client Android
+
+**Vérification :** 67 tests / 280 assertions au vert ; `migrate:fresh --seed` réussit (incl. index FULLTEXT) ; Pint OK ; build Vite OK.
 
 ---
 
@@ -183,10 +203,10 @@ Objectif : polir le produit jusqu'à ce qu'il soit prêt à être mis en ligne, 
 
 | Suivi | Statut | Notes |
 |---|---|---|
-| Tests | [~] | 43 tests fonctionnels couvrent les chemins critiques ; la matrice exhaustive des transitions et certains tests CRUD d'endpoints restent à faire |
-| Autorisation | [~] | `PublicationPolicy` + `OutilPolicy` ; rôles des prêts appliqués dans `LoanService` ; vérifications en ligne pour les médias/notifications |
-| Interface bilingue | [~] | L'interface est FR/EN : les nouvelles vues fil/outils/prêts sont entièrement traduites ; les anciennes vues auth/compte/admin contiennent encore du français codé en dur. Le contenu reste dans la langue de l'auteur, sans traduction |
-| Contrat d'API | [x] | Versionné et documenté dans `docs/api-v1.md` |
+| Tests | [~] | 67 tests / 280 assertions couvrent les chemins critiques (fil, prêts, aide, marché, événements, rencontres, confiance, messagerie) ; la matrice exhaustive des transitions et certains tests CRUD d'endpoints restent à faire |
+| Autorisation | [~] | `PublicationPolicy`, `OutilPolicy`, `DemandeAidePolicy`, `AnnoncePolicy`, `EvenementPolicy`, `RencontrePolicy` ; rôles des prêts appliqués dans `LoanService` ; modération réservée aux gestionnaires/modérateurs (`EnsureModerateur`) |
+| Interface bilingue | [~] | L'interface est FR/EN : les nouvelles vues (fil, aide, marché, événements, rencontres, modération, messagerie) sont traduites ; les anciennes vues auth/compte/admin contiennent encore du français codé en dur. Le contenu reste dans la langue de l'auteur, avec traduction à la demande |
+| Contrat d'API | [x] | Versionné et documenté dans `docs/api-v1.md` (fil unifié, aide, marché, événements, rencontres, confiance, messagerie, suivi) |
 | Observabilité | [ ] | Logs structurés, surveillance des requêtes et santé des files non implémentés |
 
 ---
@@ -199,7 +219,7 @@ Objectif : polir le produit jusqu'à ce qu'il soit prêt à être mis en ligne, 
 4. Étendre la matrice de tests : toutes les combinaisons transition/rôle et la couverture CRUD complète des endpoints `/outils`.
 5. Ajouter les bases de l'observabilité (logs structurés, surveillance des requêtes lentes, santé des files).
 6. Documenter l'exigence `migrate:fresh` pour les bases de données existantes (migrations de base modifiées).
-7. Supprimer le shim de compatibilité `lang` obsolète de l'API de lecture des publications une fois que le client Android ne l'envoie plus/ne l'attend plus.
+7. Valider avec le client Android que l'absence de la clé `lang` en réponse et l'ignorance du paramètre `lang` sont sans effet de bord (la clé a été retirée sur décision explicite de l'utilisateur).
 
 ---
 
@@ -217,7 +237,7 @@ Connexion de démonstration : `alex.tremblay@localhub.test` / `password` (ainsi 
 
 ---
 
-## 11. Journal des commits d'implémentation (phases 0 + 1)
+## 11. Journal des commits d'implémentation (phases 0 + 1 + 2)
 
 | Commit | Message |
 |---|---|
@@ -227,6 +247,9 @@ Connexion de démonstration : `alex.tremblay@localhub.test` / `password` (ainsi 
 | `8fc80e8` | `feat : fil de quartier avec publications, commentaires, réactions et images` |
 | `f1b661e` | `feat : bibliothèque d'outils, prêts et notifications` |
 | `5277f47` | `style : mise en forme Pint des fichiers existants` |
+| `5165f46` | `feat! : contenu dans la langue de l'auteur (retrait de lang) et traduction à la demande` |
+| `f91875f` | `feat : aide, marché, événements, rencontres, fil unifié et recherche plein texte` |
+| *(ce commit)* | `feat : confiance, messagerie privée, suivi et polygones de quartier` |
 
 ---
 

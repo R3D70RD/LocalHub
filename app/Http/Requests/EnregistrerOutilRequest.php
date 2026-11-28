@@ -21,7 +21,6 @@ class EnregistrerOutilRequest extends FormRequest
             'titre' => ['required', 'string', 'max:150'],
             'description' => ['required', 'string', 'max:5000'],
             'id_categorie' => ['nullable', 'integer', 'exists:categorie,id_categorie'],
-            'lang' => ['nullable', Rule::in(['fr', 'en'])],
             'portee' => ['nullable', Rule::in(['quartier', 'ville', 'pays'])],
             'etat' => ['nullable', Rule::in(['neuf', 'bon', 'usage'])],
             'caution' => ['nullable', 'numeric', 'min:0'],

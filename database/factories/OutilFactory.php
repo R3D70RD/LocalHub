@@ -2,7 +2,6 @@
 
 namespace Database\Factories;
 
-use App\Enums\Langue;
 use App\Enums\PorteeVisibilite;
 use App\Models\Outil;
 use App\Models\User;
@@ -21,7 +20,6 @@ class OutilFactory extends Factory
             'id_proprietaire' => User::factory(),
             'titre' => fake()->words(3, true),
             'description' => fake()->paragraph(),
-            'lang' => Langue::FR,
             'portee' => PorteeVisibilite::QUARTIER,
             'etat' => 'bon',
             'disponible' => true,

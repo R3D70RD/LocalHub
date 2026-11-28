@@ -22,7 +22,6 @@ return new class extends Migration
             $table->text('description');
             $table->decimal('prix', 10, 2)->nullable();
             $table->dateTime('date_heure')->nullable();
-            $table->string('lang', 2)->default('fr');
             $table->string('portee', 20)->default('quartier');
             $table->string('statut', 30)->default('active');
             $table->unsignedInteger('version')->default(1);
@@ -35,7 +34,6 @@ return new class extends Migration
             $table->index('id_quartier');
             $table->index('id_ville');
             $table->index('id_pays');
-            $table->index('lang');
             $table->index('portee');
         });
     }
