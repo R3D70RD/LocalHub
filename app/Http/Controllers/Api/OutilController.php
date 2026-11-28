@@ -20,7 +20,6 @@ class OutilController extends Controller
     {
         $outils = $this->outils->liste(Auth::guard('sanctum')->user(), [
             'scope' => $request->query('scope'),
-            'lang' => $request->query('lang'),
             'q' => $request->query('q'),
             'par_page' => (int) $request->query('par_page', 15),
         ]);

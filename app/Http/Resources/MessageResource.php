@@ -12,7 +12,6 @@ class MessageResource extends JsonResource
         return [
             'id' => $this->id_message,
             'contenu' => $this->contenu,
-            'lang' => $this->lang?->value,
             'lu_at' => $this->lu_at?->toIso8601String(),
             'expediteur' => [
                 'id' => $this->expediteur?->id_utilisateur,

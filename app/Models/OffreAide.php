@@ -2,7 +2,6 @@
 
 namespace App\Models;
 
-use App\Enums\Langue;
 use App\Enums\PorteeVisibilite;
 use App\Models\Concerns\HasGeoContext;
 use Illuminate\Database\Eloquent\Model;
@@ -24,7 +23,6 @@ class OffreAide extends Model
         'id_pays',
         'titre',
         'description',
-        'lang',
         'portee',
         'statut',
     ];
@@ -32,7 +30,6 @@ class OffreAide extends Model
     protected function casts(): array
     {
         return [
-            'lang' => Langue::class,
             'portee' => PorteeVisibilite::class,
         ];
     }

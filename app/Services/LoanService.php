@@ -2,7 +2,6 @@
 
 namespace App\Services;
 
-use App\Enums\Langue;
 use App\Enums\StatutPret;
 use App\Exceptions\ActionNonAutoriseeException;
 use App\Exceptions\ConflitPretException;
@@ -25,7 +24,7 @@ class LoanService
      * Crée une demande de prêt. La colonne unique `cle_active` garantit qu'un
      * seul prêt actif peut exister par outil, même en concurrence.
      *
-     * @param  array{date_debut: string, date_fin: string, message?: string|null, lang?: string|null}  $donnees
+     * @param  array{date_debut: string, date_fin: string, message?: string|null}  $donnees
      */
     public function demander(User $emprunteur, Outil $outil, array $donnees): Pret
     {
@@ -146,14 +145,13 @@ class LoanService
         return $pret;
     }
 
-    public function envoyerMessage(Pret $pret, User $expediteur, string $contenu, ?string $lang = null): Message
+    public function envoyerMessage(Pret $pret, User $expediteur, string $contenu): Message
     {
         $this->verifierParticipant($pret, $expediteur);
 
         $message = $pret->messages()->create([
             'id_expediteur' => $expediteur->id_utilisateur,
             'contenu' => $contenu,
-            'lang' => $lang ?? $expediteur->locale?->value ?? Langue::FR->value,
         ]);
 
         $destinataire = (int) $expediteur->id_utilisateur === (int) $pret->id_proprietaire

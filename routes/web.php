@@ -11,6 +11,7 @@ use App\Http\Controllers\OutilController;
 use App\Http\Controllers\PretController;
 use App\Http\Controllers\PublicationController;
 use App\Http\Controllers\RecherchePublicationController;
+use App\Http\Controllers\TraductionController;
 use App\Http\Middleware\EnsureManager;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -29,6 +30,9 @@ Route::post('/publications/{publication}/commentaires', [CommentaireController::
 
 Route::post('/publications/{publication}/reactions', [CommentaireController::class, 'toggleReaction'])
     ->middleware('auth')->name('publications.reactions.toggle');
+
+Route::post('/publications/{publication}/traduire', [TraductionController::class, 'traduirePublication'])
+    ->middleware(['auth', 'throttle:30,1'])->name('publications.traduire');
 
 Route::delete('/medias/{media}', [MediaController::class, 'destroy'])
     ->middleware('auth')->name('medias.destroy');

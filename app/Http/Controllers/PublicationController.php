@@ -27,7 +27,6 @@ class PublicationController extends Controller
 
         $publications = $this->feed->fil($request->user(), [
             'scope' => $scope,
-            'lang' => $request->query('lang'),
             'q' => $request->query('q'),
             'par_page' => 10,
         ]);
@@ -35,7 +34,6 @@ class PublicationController extends Controller
         return view('publications.index', [
             'publications' => $publications,
             'scope' => $scope,
-            'lang' => $request->query('lang'),
             'estVisiteur' => $estVisiteur,
         ]);
     }

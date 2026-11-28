@@ -22,9 +22,6 @@
                             {{ $publication->category->nom }}
                         </span>
                     @endif
-                    <span class="rounded-full bg-slate-100 px-2.5 py-1 font-medium uppercase text-slate-600">
-                        {{ $publication->lang?->value }}
-                    </span>
                 </div>
             </div>
 
@@ -75,6 +72,8 @@
         @endif
 
         <p class="mt-6 whitespace-pre-line text-sm text-slate-700">{{ $publication->description }}</p>
+
+        @include('publications._traduction')
 
         <div class="mt-6 flex flex-wrap items-center gap-2 border-t border-slate-100 pt-4">
             @auth

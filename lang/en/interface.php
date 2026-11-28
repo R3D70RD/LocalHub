@@ -142,4 +142,10 @@ return [
     'mark_read' => 'Mark as read',
     'mark_all_read' => 'Mark all as read',
     'no_notifications' => 'No notifications.',
+
+    // On-demand translation
+    'traduire' => 'Translate into my language',
+    'traduction_chargement' => 'Translating…',
+    'traduction_erreur' => 'Translation is temporarily unavailable.',
+    'traduction_restaurer' => 'Hide translation',
 ];

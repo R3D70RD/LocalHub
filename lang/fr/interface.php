@@ -142,4 +142,10 @@ return [
     'mark_read' => 'Marquer comme lu',
     'mark_all_read' => 'Tout marquer comme lu',
     'no_notifications' => 'Aucune notification.',
+
+    // Traduction à la demande
+    'traduire' => 'Traduire dans ma langue',
+    'traduction_chargement' => 'Traduction…',
+    'traduction_erreur' => 'Traduction temporairement indisponible.',
+    'traduction_restaurer' => 'Masquer la traduction',
 ];

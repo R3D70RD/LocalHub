@@ -13,7 +13,6 @@ return new class extends Migration
             $table->unsignedInteger('id_publication');
             $table->unsignedInteger('id_utilisateur');
             $table->text('contenu');
-            $table->string('lang', 2)->default('fr');
             $table->timestamps();
 
             $table->foreign('id_publication')

@@ -15,14 +15,12 @@ class CommentaireController extends Controller
     {
         $donnees = $request->validate([
             'contenu' => ['required', 'string', 'max:2000'],
-            'lang' => ['nullable', Rule::in(['fr', 'en'])],
         ]);
 
         $publications->commenter(
             $publication,
             $request->user(),
             $donnees['contenu'],
-            $donnees['lang'] ?? null,
         );
 
         return back()->with('status', __('interface.comment_created'));

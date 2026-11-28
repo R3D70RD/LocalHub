@@ -2,7 +2,6 @@
 
 namespace App\Models;
 
-use App\Enums\Langue;
 use App\Enums\PorteeVisibilite;
 use App\Enums\StatutPret;
 use App\Models\Concerns\HasGeoContext;
@@ -26,7 +25,6 @@ class Outil extends Model
         'id_pays',
         'titre',
         'description',
-        'lang',
         'portee',
         'etat',
         'caution',
@@ -38,7 +36,6 @@ class Outil extends Model
     protected function casts(): array
     {
         return [
-            'lang' => Langue::class,
             'portee' => PorteeVisibilite::class,
             'caution' => 'decimal:2',
             'disponible' => 'boolean',

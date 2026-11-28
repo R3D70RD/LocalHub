@@ -25,7 +25,7 @@ class FeedService
     ];
 
     /**
-     * @param  array{scope?: string, lang?: string|null, q?: string|null, par_page?: int}  $filtres
+     * @param  array{scope?: string, q?: string|null, par_page?: int}  $filtres
      */
     public function fil(?User $lecteur, array $filtres = []): LengthAwarePaginator
     {
@@ -44,10 +44,6 @@ class FeedService
             ->orderByDesc('id_publication');
 
         $this->appliquerPortee($requete, $lecteur, $scope);
-
-        if (! empty($filtres['lang']) && in_array($filtres['lang'], ['fr', 'en'], true)) {
-            $requete->where('lang', $filtres['lang']);
-        }
 
         if (! empty($filtres['q'])) {
             $recherche = '%'.$filtres['q'].'%';

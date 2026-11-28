@@ -12,7 +12,6 @@ class CommentaireResource extends JsonResource
         return [
             'id' => $this->id_commentaire,
             'contenu' => $this->contenu,
-            'lang' => $this->lang?->value,
             'auteur' => [
                 'id' => $this->utilisateur?->id_utilisateur,
                 'nom' => $this->utilisateur?->nom,

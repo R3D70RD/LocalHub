@@ -17,7 +17,6 @@ class OutilResource extends JsonResource
             'caution' => $this->caution,
             'disponible' => $this->disponible,
             'statut' => $this->statut,
-            'lang' => $this->lang?->value,
             'portee' => $this->portee?->value,
             'version' => $this->version,
             'proprietaire' => [

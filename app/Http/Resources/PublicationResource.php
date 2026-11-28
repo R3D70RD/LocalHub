@@ -14,7 +14,6 @@ class PublicationResource extends JsonResource
             'titre' => $this->titre,
             'description' => $this->description,
             'prix' => $this->prix,
-            'lang' => $this->lang?->value,
             'portee' => $this->portee?->value,
             'statut' => $this->statut,
             'date_creation' => $this->date_creation?->toIso8601String(),

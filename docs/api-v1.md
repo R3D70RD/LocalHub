@@ -37,7 +37,7 @@ curl -X POST http://localhost:8080/api/v1/auth/token \
 Paramètres de `GET /publications` :
 
 - `scope` : `quartier` (défaut), `ville`, `pays`
-- `lang` : `fr` ou `en`
+- `lang` : accepté mais **ignoré** (compatibilité avec l'ancien client Android). Le contenu est toujours affiché dans la langue de l'auteur ; aucune traduction automatique n'est appliquée côté API.
 - `q` : recherche texte sur le titre et la description
 - `par_page` : 1 à 50 (défaut 15)
 
@@ -58,7 +58,6 @@ curl -X POST http://localhost:8080/api/v1/publications \
   -H 'Accept: application/json' \
   -F 'titre=Perceuse à prêter' \
   -F 'description=Disponible samedi.' \
-  -F 'lang=fr' \
   -F 'portee=quartier' \
   -F 'images[]=@/chemin/photo1.jpg' \
   -F 'images[]=@/chemin/photo2.jpg'
@@ -74,7 +73,7 @@ curl -X POST http://localhost:8080/api/v1/publications \
 | `PUT/PATCH` | `/outils/{id}` | Modifier (propriétaire) |
 | `DELETE` | `/outils/{id}` | Supprimer (propriétaire) |
 
-`GET /outils` accepte les mêmes `scope`, `lang`, `q`, `par_page` que le fil.
+`GET /outils` accepte les mêmes `scope`, `q`, `par_page` que le fil. Le paramètre `lang` n'est plus pris en charge (le contenu est dans la langue de l'auteur).
 
 ## Prêts
 

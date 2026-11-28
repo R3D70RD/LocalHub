@@ -28,7 +28,6 @@ class PublicationApiTest extends TestCase
             'titre' => 'Perceuse à prêter',
             'description' => 'Disponible cette fin de semaine.',
             'id_categorie' => $categorie->id_categorie,
-            'lang' => 'fr',
             'portee' => 'quartier',
         ])->assertCreated()
             ->assertJsonPath('data.titre', 'Perceuse à prêter')
@@ -62,7 +61,6 @@ class PublicationApiTest extends TestCase
             'id_ville' => $sarah->id_ville,
             'titre' => 'À Sarah',
             'description' => 'Contenu',
-            'lang' => 'fr',
             'portee' => 'quartier',
             'statut' => 'active',
             'date_creation' => now(),
@@ -77,15 +75,15 @@ class PublicationApiTest extends TestCase
         ])->assertForbidden();
     }
 
-    public function test_le_fil_api_est_filtre_par_portee_et_langue(): void
+    public function test_le_fil_api_est_filtre_par_portee_et_ignore_la_langue(): void
     {
         $geo = $this->creerContexteGeo();
         $sarah = $this->utilisateurGeo('Gagnon', $geo['montreal'], $geo['plateau']);
         $alex = $this->utilisateurGeo('Tremblay', $geo['montreal'], $geo['plateau']);
 
-        $this->publication($sarah, 'Dans le quartier', 'quartier', 'fr');
-        $this->publication($sarah, 'Dans la ville', 'ville', 'fr');
-        $this->publication($sarah, 'In the country', 'pays', 'en');
+        $this->publication($sarah, 'Dans le quartier', 'quartier');
+        $this->publication($sarah, 'Dans la ville', 'ville');
+        $this->publication($sarah, 'In the country', 'pays');
 
         Sanctum::actingAs($alex);
 
@@ -98,10 +96,11 @@ class PublicationApiTest extends TestCase
             ->assertOk()
             ->assertJsonCount(2, 'data');
 
+        // `lang` est accepté mais ignoré : toutes les portées visibles remontent.
         $this->getJson('/api/v1/publications?scope=pays&lang=en')
             ->assertOk()
-            ->assertJsonCount(1, 'data')
-            ->assertJsonPath('data.0.titre', 'In the country');
+            ->assertJsonCount(3, 'data')
+            ->assertJsonMissingPath('data.0.lang');
     }
 
     public function test_un_commentaire_et_une_reaction_peuvent_etre_ajoutes(): void
@@ -110,7 +109,7 @@ class PublicationApiTest extends TestCase
         $sarah = $this->utilisateurGeo('Gagnon', $geo['montreal'], $geo['plateau']);
         $alex = $this->utilisateurGeo('Tremblay', $geo['montreal'], $geo['plateau']);
 
-        $publication = $this->publication($sarah, 'Perceuse', 'quartier', 'fr');
+        $publication = $this->publication($sarah, 'Perceuse', 'quartier');
 
         Sanctum::actingAs($alex);
 
@@ -167,9 +166,9 @@ class PublicationApiTest extends TestCase
         $geo = $this->creerContexteGeo();
         $sarah = $this->utilisateurGeo('Gagnon', $geo['montreal'], $geo['plateau']);
 
-        $quartier = $this->publication($sarah, 'Dans le quartier', 'quartier', 'fr');
-        $ville = $this->publication($sarah, 'Dans la ville', 'ville', 'fr');
-        $pays = $this->publication($sarah, 'Dans le pays', 'pays', 'fr');
+        $quartier = $this->publication($sarah, 'Dans le quartier', 'quartier');
+        $ville = $this->publication($sarah, 'Dans la ville', 'ville');
+        $pays = $this->publication($sarah, 'Dans le pays', 'pays');
 
         $this->getJson('/api/v1/publications')
             ->assertOk()
@@ -182,7 +181,7 @@ class PublicationApiTest extends TestCase
         $this->getJson('/api/v1/publications/'.$ville->id_publication)->assertNotFound();
     }
 
-    private function publication($auteur, string $titre, string $portee, string $lang): Publication
+    private function publication($auteur, string $titre, string $portee): Publication
     {
         return Publication::create([
             'id_utilisateur' => $auteur->id_utilisateur,
@@ -191,7 +190,6 @@ class PublicationApiTest extends TestCase
             'id_pays' => $auteur->ville->region->pays->id_pays,
             'titre' => $titre,
             'description' => 'Description',
-            'lang' => $lang,
             'portee' => $portee,
             'statut' => 'active',
             'date_creation' => now(),

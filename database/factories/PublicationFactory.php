@@ -2,7 +2,6 @@
 
 namespace Database\Factories;
 
-use App\Enums\Langue;
 use App\Enums\PorteeVisibilite;
 use App\Models\Category;
 use App\Models\Publication;
@@ -30,7 +29,6 @@ class PublicationFactory extends Factory
             'prix' => fake()->optional()->randomFloat(2, 10, 150),
             'date_creation' => now(),
             'statut' => 'active',
-            'lang' => Langue::FR,
             'portee' => PorteeVisibilite::QUARTIER,
             'version' => 1,
         ];

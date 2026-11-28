@@ -33,7 +33,7 @@
     @endif
 
     <form method="get" action="{{ route('publications.index') }}"
-          class="mb-6 grid gap-3 rounded-lg border border-slate-200 bg-white p-4 shadow-sm {{ $estVisiteur ? 'sm:grid-cols-[1fr_2fr_auto]' : 'sm:grid-cols-[1fr_1fr_2fr_auto]' }}">
+          class="mb-6 grid gap-3 rounded-lg border border-slate-200 bg-white p-4 shadow-sm {{ $estVisiteur ? 'sm:grid-cols-[2fr_auto]' : 'sm:grid-cols-[1fr_2fr_auto]' }}">
         @unless ($estVisiteur)
             <div>
                 <label for="scope" class="mb-1 block text-xs font-medium uppercase tracking-wide text-slate-500">
@@ -47,18 +47,6 @@
                 </select>
             </div>
         @endunless
-
-        <div>
-            <label for="lang" class="mb-1 block text-xs font-medium uppercase tracking-wide text-slate-500">
-                {{ __('interface.language') }}
-            </label>
-            <select id="lang" name="lang"
-                    class="w-full rounded-md border border-slate-300 px-3 py-2 text-sm shadow-sm">
-                <option value="">{{ __('interface.all_languages') }}</option>
-                <option value="fr" @selected($lang === 'fr')>Français</option>
-                <option value="en" @selected($lang === 'en')>English</option>
-            </select>
-        </div>
 
         <div>
             <label for="q" class="mb-1 block text-xs font-medium uppercase tracking-wide text-slate-500">
@@ -103,9 +91,6 @@
                                 {{ $publication->category->nom }}
                             </span>
                         @endif
-                        <span class="rounded-full bg-slate-100 px-2.5 py-1 font-medium uppercase text-slate-600">
-                            {{ $publication->lang?->value }}
-                        </span>
                     </div>
                 </div>
 
@@ -118,6 +103,8 @@
                 <p class="mt-3 text-sm text-slate-700">
                     {{ \Illuminate\Support\Str::limit($publication->description, 240) }}
                 </p>
+
+                @include('publications._traduction')
 
                 <div class="mt-4 flex items-center gap-4 text-xs text-slate-500">
                     <span>👍 {{ $publication->reactions_count }}</span>

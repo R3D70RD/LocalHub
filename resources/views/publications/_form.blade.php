@@ -43,15 +43,6 @@
         </div>
 
         <div>
-            <label for="lang" class="{{ $labelClass }}">{{ __('interface.language') }}</label>
-            <select id="lang" name="lang" class="{{ $inputClass }}">
-                <option value="fr" @selected(old('lang', $publication?->lang?->value ?? 'fr') === 'fr')>Français</option>
-                <option value="en" @selected(old('lang', $publication?->lang?->value ?? 'fr') === 'en')>English</option>
-            </select>
-            @error('lang') <p class="{{ $errorClass }}">{{ $message }}</p> @enderror
-        </div>
-
-        <div>
             <label for="portee" class="{{ $labelClass }}">{{ __('interface.scope_label') }}</label>
             <select id="portee" name="portee" class="{{ $inputClass }}">
                 <option value="quartier" @selected(old('portee', $publication?->portee?->value ?? 'quartier') === 'quartier')>{{ __('interface.scope_quartier') }}</option>

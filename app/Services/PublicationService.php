@@ -2,7 +2,6 @@
 
 namespace App\Services;
 
-use App\Enums\Langue;
 use App\Enums\PorteeVisibilite;
 use App\Enums\TypeReaction;
 use App\Models\Commentaire;
@@ -39,7 +38,6 @@ class PublicationService
                     'id_quartier' => $auteur->id_quartier,
                     'id_ville' => $auteur->id_ville,
                     'id_pays' => $auteur->ville?->region?->pays?->id_pays,
-                    'lang' => $donnees['lang'] ?? $auteur->locale?->value ?? Langue::FR->value,
                     'portee' => $donnees['portee'] ?? $auteur->parametre?->portee_defaut ?? PorteeVisibilite::QUARTIER->value,
                     'statut' => $donnees['statut'] ?? 'active',
                     'version' => 1,
@@ -67,7 +65,7 @@ class PublicationService
         try {
             return DB::transaction(function () use ($publication, $donnees, $chemins) {
                 $autorisees = Arr::only($donnees, [
-                    'titre', 'description', 'prix', 'date_heure', 'id_categorie', 'lang', 'portee', 'statut',
+                    'titre', 'description', 'prix', 'date_heure', 'id_categorie', 'portee', 'statut',
                 ]);
 
                 // Les champs nullables peuvent être vidés explicitement ; les
@@ -101,12 +99,11 @@ class PublicationService
         $publication->delete();
     }
 
-    public function commenter(Publication $publication, User $auteur, string $contenu, ?string $lang = null): Commentaire
+    public function commenter(Publication $publication, User $auteur, string $contenu): Commentaire
     {
         return $publication->commentaires()->create([
             'id_utilisateur' => $auteur->id_utilisateur,
             'contenu' => $contenu,
-            'lang' => $lang ?? $auteur->locale?->value ?? Langue::FR->value,
         ]);
     }
 

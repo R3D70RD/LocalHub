@@ -2,7 +2,6 @@
 
 namespace Database\Seeders;
 
-use App\Enums\Langue;
 use App\Enums\PorteeVisibilite;
 use App\Models\Annonce;
 use App\Models\Category;
@@ -83,7 +82,6 @@ class DatabaseSeeder extends Seeder
                 'utilisateur' => $users['Sarah'],
                 'titre' => 'Tondeuse à prêter pour le week-end',
                 'description' => 'Ma tondeuse est disponible samedi et dimanche. Apportez votre propre essence.',
-                'lang' => Langue::FR,
                 'portee' => PorteeVisibilite::QUARTIER,
                 'categorie' => 'outils',
             ],
@@ -91,7 +89,6 @@ class DatabaseSeeder extends Seeder
                 'utilisateur' => $users['Alex'],
                 'titre' => 'Looking for moving boxes',
                 'description' => 'Anyone in the neighbourhood has spare cardboard boxes for a move next week?',
-                'lang' => Langue::EN,
                 'portee' => PorteeVisibilite::QUARTIER,
                 'categorie' => 'autres',
             ],
@@ -99,7 +96,6 @@ class DatabaseSeeder extends Seeder
                 'utilisateur' => $users['Emma'],
                 'titre' => 'Vente de garage à Verdun',
                 'description' => 'Samedi matin, plusieurs meubles et livres à petit prix.',
-                'lang' => Langue::FR,
                 'portee' => PorteeVisibilite::VILLE,
                 'categorie' => 'meubles',
             ],
@@ -107,7 +103,6 @@ class DatabaseSeeder extends Seeder
                 'utilisateur' => $users['Maxime'],
                 'titre' => 'Cours de guitare pour débutants',
                 'description' => 'Je propose des cours dans le quartier, première séance gratuite.',
-                'lang' => Langue::FR,
                 'portee' => PorteeVisibilite::VILLE,
                 'categorie' => 'services',
             ],
@@ -115,7 +110,6 @@ class DatabaseSeeder extends Seeder
                 'utilisateur' => $users['Sarah'],
                 'titre' => 'Atelier de réparation de vélos ouvert à tous',
                 'description' => 'Des bénévoles partagent leurs outils partout au pays pour réparer votre vélo ce printemps.',
-                'lang' => Langue::FR,
                 'portee' => PorteeVisibilite::PAYS,
                 'categorie' => 'services',
             ],
@@ -123,7 +117,6 @@ class DatabaseSeeder extends Seeder
                 'utilisateur' => $users['Alex'],
                 'titre' => 'Coast-to-coast community garden guide',
                 'description' => 'A free English guide to starting a community garden anywhere in the country.',
-                'lang' => Langue::EN,
                 'portee' => PorteeVisibilite::PAYS,
                 'categorie' => 'autres',
             ],
@@ -141,7 +134,6 @@ class DatabaseSeeder extends Seeder
                     'id_quartier' => $data['utilisateur']->id_quartier,
                     'id_ville' => $data['utilisateur']->id_ville,
                     'id_pays' => $pays->id_pays,
-                    'lang' => $data['lang'],
                     'portee' => $data['portee'],
                     'statut' => 'active',
                     'date_creation' => now(),
@@ -157,7 +149,6 @@ class DatabaseSeeder extends Seeder
                     ],
                     [
                         'contenu' => 'Je suis intéressé, je peux passer samedi matin.',
-                        'lang' => Langue::FR,
                     ],
                 );
 
@@ -190,7 +181,6 @@ class DatabaseSeeder extends Seeder
                     'id_quartier' => $data['proprietaire']->id_quartier,
                     'id_ville' => $data['proprietaire']->id_ville,
                     'id_pays' => $pays->id_pays,
-                    'lang' => Langue::FR,
                     'portee' => PorteeVisibilite::QUARTIER,
                     'etat' => 'bon',
                     'disponible' => true,
@@ -232,7 +222,6 @@ class DatabaseSeeder extends Seeder
                 'id_quartier' => $users['Thomas']->id_quartier,
                 'id_ville' => $users['Thomas']->id_ville,
                 'id_pays' => $pays->id_pays,
-                'lang' => Langue::FR,
                 'portee' => PorteeVisibilite::VILLE,
                 'type_annonce' => 'don',
                 'prix' => 0,

@@ -19,9 +19,9 @@ class PublicationWebTest extends TestCase
         $emma = $this->utilisateurGeo('Bouchard', $geo['montreal'], $geo['verdun']);
         $alex = $this->utilisateurGeo('Tremblay', $geo['montreal'], $geo['plateau']);
 
-        $this->publication($sarah, 'Mon quartier', 'quartier', 'fr');
-        $this->publication($emma, 'Verdun', 'quartier', 'fr');
-        $this->publication($sarah, 'Toute la ville', 'ville', 'fr');
+        $this->publication($sarah, 'Mon quartier', 'quartier');
+        $this->publication($emma, 'Verdun', 'quartier');
+        $this->publication($sarah, 'Toute la ville', 'ville');
 
         $this->actingAs($alex)
             ->get('/publications')
@@ -42,7 +42,7 @@ class PublicationWebTest extends TestCase
         $geo = $this->creerContexteGeo();
         $sarah = $this->utilisateurGeo('Gagnon', $geo['montreal'], $geo['plateau']);
         $alex = $this->utilisateurGeo('Tremblay', $geo['montreal'], $geo['plateau']);
-        $publication = $this->publication($sarah, 'Perceuse', 'quartier', 'fr');
+        $publication = $this->publication($sarah, 'Perceuse', 'quartier');
 
         $this->actingAs($alex)
             ->post(route('publications.commentaires.store', $publication), [
@@ -66,7 +66,7 @@ class PublicationWebTest extends TestCase
         $geo = $this->creerContexteGeo();
         $sarah = $this->utilisateurGeo('Gagnon', $geo['montreal'], $geo['plateau']);
         $alex = $this->utilisateurGeo('Tremblay', $geo['montreal'], $geo['plateau']);
-        $publication = $this->publication($sarah, 'Perceuse', 'quartier', 'fr');
+        $publication = $this->publication($sarah, 'Perceuse', 'quartier');
 
         $this->actingAs($alex)
             ->post(route('publications.reactions.toggle', $publication), ['type' => 'j_aime'])
@@ -86,7 +86,7 @@ class PublicationWebTest extends TestCase
         $geo = $this->creerContexteGeo();
         $sarah = $this->utilisateurGeo('Gagnon', $geo['montreal'], $geo['plateau']);
         $alex = $this->utilisateurGeo('Tremblay', $geo['montreal'], $geo['plateau']);
-        $publication = $this->publication($sarah, 'Perceuse', 'quartier', 'fr');
+        $publication = $this->publication($sarah, 'Perceuse', 'quartier');
 
         $this->actingAs($alex)
             ->get(route('publications.edit', $publication))
@@ -98,9 +98,9 @@ class PublicationWebTest extends TestCase
         $geo = $this->creerContexteGeo();
         $sarah = $this->utilisateurGeo('Gagnon', $geo['montreal'], $geo['plateau']);
 
-        $quartier = $this->publication($sarah, 'Publication de quartier', 'quartier', 'fr');
-        $ville = $this->publication($sarah, 'Publication de ville', 'ville', 'fr');
-        $pays = $this->publication($sarah, 'Publication de pays', 'pays', 'fr');
+        $quartier = $this->publication($sarah, 'Publication de quartier', 'quartier');
+        $ville = $this->publication($sarah, 'Publication de ville', 'ville');
+        $pays = $this->publication($sarah, 'Publication de pays', 'pays');
 
         $this->get('/')
             ->assertOk()
@@ -119,9 +119,9 @@ class PublicationWebTest extends TestCase
         $geo = $this->creerContexteGeo();
         $sarah = $this->utilisateurGeo('Gagnon', $geo['montreal'], $geo['plateau']);
 
-        $this->publication($sarah, 'Recherche quartier', 'quartier', 'fr');
-        $this->publication($sarah, 'Recherche ville', 'ville', 'fr');
-        $this->publication($sarah, 'Recherche pays', 'pays', 'fr');
+        $this->publication($sarah, 'Recherche quartier', 'quartier');
+        $this->publication($sarah, 'Recherche ville', 'ville');
+        $this->publication($sarah, 'Recherche pays', 'pays');
 
         $this->getJson(route('recherche.publications', ['q' => 'Recherche']))
             ->assertOk()
@@ -143,7 +143,7 @@ class PublicationWebTest extends TestCase
             ->assertSee('Atelier de réparation de vélos ouvert à tous');
     }
 
-    private function publication($auteur, string $titre, string $portee, string $lang): Publication
+    private function publication($auteur, string $titre, string $portee): Publication
     {
         return Publication::create([
             'id_utilisateur' => $auteur->id_utilisateur,
@@ -152,7 +152,6 @@ class PublicationWebTest extends TestCase
             'id_pays' => $auteur->ville->region->pays->id_pays,
             'titre' => $titre,
             'description' => 'Description',
-            'lang' => $lang,
             'portee' => $portee,
             'statut' => 'active',
             'date_creation' => now(),

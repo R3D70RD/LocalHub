@@ -2,7 +2,6 @@
 
 namespace App\Models;
 
-use App\Enums\Langue;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
@@ -17,14 +16,12 @@ class Message extends Model
         'id_annonce',
         'id_expediteur',
         'contenu',
-        'lang',
         'lu_at',
     ];
 
     protected function casts(): array
     {
         return [
-            'lang' => Langue::class,
             'lu_at' => 'datetime',
         ];
     }

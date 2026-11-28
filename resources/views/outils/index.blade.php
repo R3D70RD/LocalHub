@@ -17,7 +17,7 @@
     </div>
 
     <form method="get" action="{{ route('outils.index') }}"
-          class="mb-6 grid gap-3 rounded-lg border border-slate-200 bg-white p-4 shadow-sm sm:grid-cols-[1fr_1fr_2fr_auto]">
+          class="mb-6 grid gap-3 rounded-lg border border-slate-200 bg-white p-4 shadow-sm sm:grid-cols-[1fr_2fr_auto]">
         <div>
             <label for="scope" class="mb-1 block text-xs font-medium uppercase tracking-wide text-slate-500">
                 {{ __('interface.scope') }}
@@ -26,16 +26,6 @@
                 <option value="quartier" @selected($scope === 'quartier')>{{ __('interface.scope_quartier') }}</option>
                 <option value="ville" @selected($scope === 'ville')>{{ __('interface.scope_ville') }}</option>
                 <option value="pays" @selected($scope === 'pays')>{{ __('interface.scope_pays') }}</option>
-            </select>
-        </div>
-        <div>
-            <label for="lang" class="mb-1 block text-xs font-medium uppercase tracking-wide text-slate-500">
-                {{ __('interface.language') }}
-            </label>
-            <select id="lang" name="lang" class="w-full rounded-md border border-slate-300 px-3 py-2 text-sm shadow-sm">
-                <option value="">{{ __('interface.all_languages') }}</option>
-                <option value="fr" @selected($lang === 'fr')>Français</option>
-                <option value="en" @selected($lang === 'en')>English</option>
             </select>
         </div>
         <div>

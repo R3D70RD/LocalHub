@@ -24,7 +24,6 @@ class EnregistrerPublicationRequest extends FormRequest
             'prix' => ['nullable', 'numeric', 'min:0'],
             'date_heure' => ['nullable', 'date'],
             'id_categorie' => ['nullable', 'integer', 'exists:categorie,id_categorie'],
-            'lang' => ['nullable', Rule::in(['fr', 'en'])],
             'portee' => ['nullable', Rule::in(['quartier', 'ville', 'pays'])],
             'image' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:4096'],
             'images' => ['nullable', 'array', 'max:6'],

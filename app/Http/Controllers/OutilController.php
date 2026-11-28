@@ -17,7 +17,6 @@ class OutilController extends Controller
     {
         $outils = $this->outils->liste($request->user(), [
             'scope' => $request->query('scope'),
-            'lang' => $request->query('lang'),
             'q' => $request->query('q'),
             'par_page' => 12,
         ]);
@@ -27,7 +26,6 @@ class OutilController extends Controller
             'scope' => in_array($request->query('scope'), ['quartier', 'ville', 'pays'], true)
                 ? $request->query('scope')
                 : 'quartier',
-            'lang' => $request->query('lang'),
         ]);
     }
 
