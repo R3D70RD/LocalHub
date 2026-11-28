@@ -3,12 +3,16 @@
 use App\Http\Controllers\Api\AnnonceController;
 use App\Http\Controllers\Api\AnnonceMessageController;
 use App\Http\Controllers\Api\AuthController;
+use App\Http\Controllers\Api\AvisPretController;
+use App\Http\Controllers\Api\BlocageController;
 use App\Http\Controllers\Api\CommentaireController;
+use App\Http\Controllers\Api\ConversationController;
 use App\Http\Controllers\Api\DemandeAideController;
 use App\Http\Controllers\Api\EvenementController;
 use App\Http\Controllers\Api\FilController;
 use App\Http\Controllers\Api\InscriptionEvenementController;
 use App\Http\Controllers\Api\MediaController;
+use App\Http\Controllers\Api\ModerationController;
 use App\Http\Controllers\Api\NotificationController;
 use App\Http\Controllers\Api\OffreAideController;
 use App\Http\Controllers\Api\OffreAnnonceController;
@@ -18,6 +22,9 @@ use App\Http\Controllers\Api\PublicationController;
 use App\Http\Controllers\Api\ReactionController;
 use App\Http\Controllers\Api\RencontreController;
 use App\Http\Controllers\Api\RencontreMembreController;
+use App\Http\Controllers\Api\SignalementController;
+use App\Http\Controllers\Api\SuiviController;
+use App\Http\Middleware\EnsureModerateur;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/health', fn () => response()->json([
@@ -94,6 +101,24 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::delete('/rencontres/{rencontre}', [RencontreController::class, 'destroy']);
     Route::post('/rencontres/{rencontre}/membres', [RencontreMembreController::class, 'store']);
     Route::delete('/rencontres/{rencontre}/membres', [RencontreMembreController::class, 'destroy']);
+
+    // Confiance / sécurité
+    Route::post('/signalements', [SignalementController::class, 'store']);
+    Route::get('/moderation', [ModerationController::class, 'index'])->middleware(EnsureModerateur::class);
+    Route::post('/moderation/{signalement}/traiter', [ModerationController::class, 'traiter'])->middleware(EnsureModerateur::class);
+    Route::post('/utilisateurs/{utilisateur}/bloquer', [BlocageController::class, 'store']);
+    Route::delete('/utilisateurs/{utilisateur}/bloquer', [BlocageController::class, 'destroy']);
+    Route::post('/prets/{pret}/avis', [AvisPretController::class, 'store']);
+
+    // Messagerie privée
+    Route::get('/messages', [ConversationController::class, 'index']);
+    Route::post('/messages', [ConversationController::class, 'demarrer']);
+    Route::get('/messages/{conversation}', [ConversationController::class, 'show']);
+    Route::post('/messages/{conversation}', [ConversationController::class, 'store']);
+
+    // Suivi de publication
+    Route::post('/publications/{publication}/suivre', [SuiviController::class, 'store']);
+    Route::delete('/publications/{publication}/suivre', [SuiviController::class, 'destroy']);
 
     Route::get('/notifications', [NotificationController::class, 'index']);
     Route::post('/notifications/read-all', [NotificationController::class, 'toutLire']);

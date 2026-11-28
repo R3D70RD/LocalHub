@@ -15,6 +15,8 @@ abstract class ContenuService
     public function __construct(
         protected readonly FeedService $feed,
         protected readonly RechercheService $recherche,
+        protected readonly NotificationService $notifications,
+        protected readonly BlocageService $blocages,
     ) {}
 
     /**
@@ -27,6 +29,7 @@ abstract class ContenuService
 
         $this->feed->appliquerPortee($requete, $lecteur, $scope);
         $this->recherche->appliquer($requete, $filtres['q'] ?? null);
+        $this->blocages->exclure($requete, $lecteur);
 
         return $requete->paginate($parPage)->withQueryString();
     }

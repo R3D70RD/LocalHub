@@ -59,6 +59,11 @@ class Pret extends Model
         return $this->hasMany(Message::class, 'id_pret', 'id_pret');
     }
 
+    public function avis(): HasMany
+    {
+        return $this->hasMany(AvisPret::class, 'id_pret', 'id_pret');
+    }
+
     public function scopePourUtilisateur($query, int $idUtilisateur)
     {
         return $query->where(function ($q) use ($idUtilisateur) {

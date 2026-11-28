@@ -18,6 +18,8 @@ use Throwable;
 
 class PublicationService
 {
+    public function __construct(private readonly SuiviService $suivis) {}
+
     /**
      * @param  array<string, mixed>  $donnees
      * @param  array<int, UploadedFile>  $images
@@ -101,10 +103,18 @@ class PublicationService
 
     public function commenter(Publication $publication, User $auteur, string $contenu): Commentaire
     {
-        return $publication->commentaires()->create([
+        $commentaire = $publication->commentaires()->create([
             'id_utilisateur' => $auteur->id_utilisateur,
             'contenu' => $contenu,
         ]);
+
+        $this->suivis->notifierSuiveurs('publication', $publication->id_publication, $auteur, 'publication.commentaire', [
+            'id_publication' => $publication->id_publication,
+            'titre' => $publication->titre,
+            'apercu' => mb_substr($contenu, 0, 120),
+        ]);
+
+        return $commentaire;
     }
 
     /**

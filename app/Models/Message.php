@@ -14,6 +14,7 @@ class Message extends Model
     protected $fillable = [
         'id_pret',
         'id_annonce',
+        'id_conversation',
         'id_expediteur',
         'contenu',
         'lu_at',
@@ -34,6 +35,11 @@ class Message extends Model
     public function annonce(): BelongsTo
     {
         return $this->belongsTo(Annonce::class, 'id_annonce', 'id_annonce');
+    }
+
+    public function conversation(): BelongsTo
+    {
+        return $this->belongsTo(Conversation::class, 'id_conversation', 'id_conversation');
     }
 
     public function expediteur(): BelongsTo

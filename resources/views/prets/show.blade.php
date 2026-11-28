@@ -67,6 +67,31 @@
         @error('action') <p class="mt-3 text-sm text-rose-600">{{ $message }}</p> @enderror
     </section>
 
+    @if ($peutNoter && ! $avisExistant)
+        <section class="mt-6 rounded-lg border border-slate-200 bg-white p-6 shadow-sm">
+            <h2 class="text-lg font-semibold text-slate-900">{{ __('interface.loan_review') }}</h2>
+            <form method="post" action="{{ route('prets.avis.store', $pret) }}" class="mt-4 space-y-3">
+                @csrf
+                <div>
+                    <label for="note" class="block text-sm font-medium text-slate-700">{{ __('interface.review_note') }}</label>
+                    <select id="note" name="note" class="mt-1 rounded-md border border-slate-300 px-3 py-2 text-sm shadow-sm">
+                        @for ($i = 5; $i >= 1; $i--)
+                            <option value="{{ $i }}" @selected((int) old('note', 5) === $i)>{{ $i }} / 5</option>
+                        @endfor
+                    </select>
+                    @error('note') <p class="mt-1 text-sm text-rose-600">{{ $message }}</p> @enderror
+                </div>
+                <div>
+                    <label for="commentaire" class="block text-sm font-medium text-slate-700">{{ __('interface.review_comment') }}</label>
+                    <textarea id="commentaire" name="commentaire" rows="3"
+                              class="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm shadow-sm">{{ old('commentaire') }}</textarea>
+                    @error('commentaire') <p class="mt-1 text-sm text-rose-600">{{ $message }}</p> @enderror
+                </div>
+                <button type="submit" class="rounded-md bg-slate-900 px-4 py-2 text-sm font-medium text-white hover:bg-slate-700">{{ __('interface.submit_review') }}</button>
+            </form>
+        </section>
+    @endif
+
     <section class="mt-6 rounded-lg border border-slate-200 bg-white p-6 shadow-sm">
         <h2 class="text-lg font-semibold text-slate-900">{{ __('interface.chat') }}</h2>
 

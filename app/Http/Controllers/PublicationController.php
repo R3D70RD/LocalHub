@@ -4,8 +4,10 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\EnregistrerPublicationRequest;
 use App\Models\Publication;
+use App\Services\BlocageService;
 use App\Services\FeedService;
 use App\Services\PublicationService;
+use App\Services\SuiviService;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -16,6 +18,8 @@ class PublicationController extends Controller
     public function __construct(
         private readonly FeedService $feed,
         private readonly PublicationService $publications,
+        private readonly SuiviService $suivis,
+        private readonly BlocageService $blocages,
     ) {}
 
     public function index(Request $request): View
@@ -83,6 +87,11 @@ class PublicationController extends Controller
             'publication' => $publication,
             'compteursReactions' => $compteursReactions,
             'reactionsUtilisateur' => $reactionsUtilisateur,
+            'suivi' => auth()->check()
+                && $this->suivis->estSuivi(auth()->user(), 'publication', $publication->id_publication),
+            'bloqueAuteur' => auth()->check()
+                && $publication->utilisateur !== null
+                && $this->blocages->estBloque(auth()->user(), $publication->utilisateur),
         ]);
     }
 

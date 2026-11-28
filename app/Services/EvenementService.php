@@ -99,7 +99,7 @@ class EvenementService extends ContenuService
 
     public function inscrire(Evenement $evenement, User $utilisateur): InscriptionEvenement
     {
-        return DB::transaction(function () use ($evenement, $utilisateur) {
+        $inscription = DB::transaction(function () use ($evenement, $utilisateur) {
             $existante = $evenement->inscriptions()
                 ->where('id_utilisateur', $utilisateur->id_utilisateur)
                 ->first();
@@ -123,6 +123,19 @@ class EvenementService extends ContenuService
                 ['statut' => 'inscrit'],
             );
         });
+
+        if ($inscription->wasRecentlyCreated || $inscription->wasChanged('statut')) {
+            $organisateur = $evenement->utilisateur;
+
+            if ($organisateur !== null && (int) $organisateur->id_utilisateur !== (int) $utilisateur->id_utilisateur) {
+                $this->notifications->envoyer($organisateur, 'evenement.inscription', [
+                    'id_evenement' => $evenement->id_evenement,
+                    'titre' => $evenement->titre,
+                ]);
+            }
+        }
+
+        return $inscription;
     }
 
     public function annulerInscription(Evenement $evenement, User $utilisateur): void

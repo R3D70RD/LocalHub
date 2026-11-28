@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Enums\StatutPret;
 use App\Exceptions\ActionNonAutoriseeException;
 use App\Exceptions\ConflitPretException;
 use App\Exceptions\TransitionInvalideException;
@@ -59,6 +60,10 @@ class PretController extends Controller
         return view('prets.show', [
             'pret' => $pret,
             'actions' => $this->prets->actionsAutorisees($pret, request()->user()),
+            'peutNoter' => $pret->statut === StatutPret::RETOURNE,
+            'avisExistant' => $pret->avis()
+                ->where('id_auteur', request()->user()->id_utilisateur)
+                ->exists(),
         ]);
     }
 

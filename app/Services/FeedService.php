@@ -32,7 +32,10 @@ class FeedService
         'pays' => 3,
     ];
 
-    public function __construct(private readonly RechercheService $recherche) {}
+    public function __construct(
+        private readonly RechercheService $recherche,
+        private readonly BlocageService $blocages,
+    ) {}
 
     /**
      * @param  array{scope?: string, q?: string|null, par_page?: int}  $filtres
@@ -55,6 +58,7 @@ class FeedService
 
         $this->appliquerPortee($requete, $lecteur, $scope);
         $this->recherche->appliquer($requete, $filtres['q'] ?? null);
+        $this->blocages->exclure($requete, $lecteur, 'id_utilisateur');
 
         return $requete->paginate($parPage)->withQueryString();
     }
@@ -251,6 +255,7 @@ class FeedService
     ): Builder {
         $this->appliquerPortee($requete, $lecteur, $scope);
         $this->recherche->appliquer($requete, $recherche);
+        $this->blocages->exclure($requete, $lecteur, $colonneAuteur);
 
         return $requete->selectRaw(
             "'{$type}' as type, {$cle} as id, titre, description, {$dateExpression} as date_publication, portee, id_quartier, id_ville, id_pays, {$colonneAuteur} as id_utilisateur, id_categorie"

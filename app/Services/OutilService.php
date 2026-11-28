@@ -16,6 +16,7 @@ class OutilService
         private readonly FeedService $feed,
         private readonly PublicationService $medias,
         private readonly RechercheService $recherche,
+        private readonly BlocageService $blocages,
     ) {}
 
     /**
@@ -38,6 +39,7 @@ class OutilService
 
         $this->feed->appliquerPortee($requete, $lecteur, $scope);
         $this->recherche->appliquer($requete, $filtres['q'] ?? null);
+        $this->blocages->exclure($requete, $lecteur, 'id_proprietaire');
 
         return $requete->paginate($parPage)->withQueryString();
     }

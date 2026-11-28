@@ -93,20 +93,44 @@ class AnnonceService extends ContenuService
      */
     public function proposerOffre(Annonce $annonce, User $auteur, array $donnees): OffreAnnonce
     {
-        return OffreAnnonce::create([
+        $offre = OffreAnnonce::create([
             'id_annonce' => $annonce->id_annonce,
             'id_utilisateur' => $auteur->id_utilisateur,
             'montant' => $donnees['montant'] ?? null,
             'message' => $donnees['message'] ?? null,
             'statut' => 'proposee',
         ]);
+
+        $destinataire = $annonce->utilisateur;
+
+        if ($destinataire !== null && (int) $destinataire->id_utilisateur !== (int) $auteur->id_utilisateur) {
+            $this->notifications->envoyer($destinataire, 'annonce.offre', [
+                'id_annonce' => $annonce->id_annonce,
+                'titre' => $annonce->titre,
+                'apercu' => mb_substr((string) ($donnees['message'] ?? ''), 0, 120),
+            ]);
+        }
+
+        return $offre;
     }
 
     public function envoyerMessage(Annonce $annonce, User $expediteur, string $contenu): Message
     {
-        return $annonce->messages()->create([
+        $message = $annonce->messages()->create([
             'id_expediteur' => $expediteur->id_utilisateur,
             'contenu' => $contenu,
         ]);
+
+        $destinataire = $annonce->utilisateur;
+
+        if ($destinataire !== null && (int) $destinataire->id_utilisateur !== (int) $expediteur->id_utilisateur) {
+            $this->notifications->envoyer($destinataire, 'annonce.message', [
+                'id_annonce' => $annonce->id_annonce,
+                'titre' => $annonce->titre,
+                'apercu' => mb_substr($contenu, 0, 120),
+            ]);
+        }
+
+        return $message;
     }
 }

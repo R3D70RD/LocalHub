@@ -112,6 +112,21 @@ class User extends Authenticatable
         return $this->hasMany(Message::class, 'id_expediteur', 'id_utilisateur');
     }
 
+    public function conversations(): HasMany
+    {
+        return $this->hasMany(ConversationMembre::class, 'id_utilisateur', 'id_utilisateur');
+    }
+
+    public function suivis(): HasMany
+    {
+        return $this->hasMany(Suivi::class, 'id_utilisateur', 'id_utilisateur');
+    }
+
+    public function blocages(): HasMany
+    {
+        return $this->hasMany(Blocage::class, 'id_bloqueur', 'id_utilisateur');
+    }
+
     public function ville(): BelongsTo
     {
         return $this->belongsTo(Ville::class, 'id_ville', 'id_ville');

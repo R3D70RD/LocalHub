@@ -80,7 +80,7 @@ class DemandeAideService extends ContenuService
      */
     public function proposerOffre(DemandeAide $demande, User $auteur, array $donnees): OffreAide
     {
-        return OffreAide::create([
+        $offre = OffreAide::create([
             'id_demande_aide' => $demande->id_demande_aide,
             'id_utilisateur' => $auteur->id_utilisateur,
             'id_quartier' => $demande->id_quartier,
@@ -91,5 +91,17 @@ class DemandeAideService extends ContenuService
             'portee' => $demande->portee,
             'statut' => 'proposee',
         ]);
+
+        $destinataire = $demande->utilisateur;
+
+        if ($destinataire !== null && (int) $destinataire->id_utilisateur !== (int) $auteur->id_utilisateur) {
+            $this->notifications->envoyer($destinataire, 'aide.offre', [
+                'id_demande_aide' => $demande->id_demande_aide,
+                'titre' => $demande->titre,
+                'apercu' => mb_substr($donnees['description'], 0, 120),
+            ]);
+        }
+
+        return $offre;
     }
 }

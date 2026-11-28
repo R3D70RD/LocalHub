@@ -31,6 +31,26 @@
     </section>
 
     <section class="mt-10 rounded-lg border border-slate-200 bg-white p-6 shadow-sm">
+        <h2 class="text-lg font-semibold text-slate-900">{{ __('interface.blocked_users') }}</h2>
+        <div class="mt-4 space-y-3">
+            @forelse ($bloques as $blocage)
+                <div class="flex items-center justify-between rounded-md border border-slate-100 bg-slate-50 p-3">
+                    <span class="text-sm text-slate-800">
+                        {{ trim(($blocage->bloque?->prenom ?? '').' '.($blocage->bloque?->nom ?? '')) }}
+                    </span>
+                    <form method="post" action="{{ route('blocages.destroy', $blocage->bloque) }}">
+                        @csrf
+                        @method('DELETE')
+                        <button type="submit" class="rounded-md border border-slate-300 px-3 py-1.5 text-xs text-slate-700 hover:bg-slate-100">{{ __('interface.unblock_user') }}</button>
+                    </form>
+                </div>
+            @empty
+                <p class="text-sm text-slate-500">{{ __('interface.no_blocked_users') }}</p>
+            @endforelse
+        </div>
+    </section>
+
+    <section class="mt-10 rounded-lg border border-slate-200 bg-white p-6 shadow-sm">
         <h2 class="text-lg font-semibold text-slate-900">Changer le mot de passe</h2>
 
         <form method="post" action="{{ route('account.password.update') }}" class="mt-4 space-y-4">

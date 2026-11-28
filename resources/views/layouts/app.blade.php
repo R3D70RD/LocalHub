@@ -47,6 +47,12 @@
                 </a>
 
                 @auth
+                    @if (in_array(auth()->user()?->role, [\App\Models\User::ROLE_MANAGER, \App\Models\User::ROLE_MODERATEUR], true))
+                        <a href="{{ route('moderation.index') }}"
+                           class="rounded-md bg-amber-500 px-3 py-1.5 font-medium text-white hover:bg-amber-600">
+                            {{ __('interface.nav_moderation') }}
+                        </a>
+                    @endif
                     @if (auth()->user()?->role === \App\Models\User::ROLE_MANAGER)
                         <a href="{{ route('admin.index') }}"
                            class="rounded-md bg-amber-500 px-3 py-1.5 font-medium text-white hover:bg-amber-600">
@@ -62,6 +68,10 @@
                                 {{ $nonLues }}
                             </span>
                         @endif
+                    </a>
+                    <a href="{{ route('conversations.index') }}"
+                       class="rounded-md px-3 py-1.5 text-slate-600 hover:bg-slate-100 hover:text-slate-900">
+                        {{ __('interface.nav_messages') }}
                     </a>
                     <a href="{{ route('account.show') }}"
                        class="rounded-md px-3 py-1.5 text-slate-600 hover:bg-slate-100 hover:text-slate-900">

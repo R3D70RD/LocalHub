@@ -93,7 +93,7 @@ class RencontreService extends ContenuService
 
     public function rejoindre(Rencontre $rencontre, User $utilisateur): RencontreMembre
     {
-        return DB::transaction(function () use ($rencontre, $utilisateur) {
+        $membre = DB::transaction(function () use ($rencontre, $utilisateur) {
             $existante = $rencontre->membres()
                 ->where('id_utilisateur', $utilisateur->id_utilisateur)
                 ->first();
@@ -117,6 +117,19 @@ class RencontreService extends ContenuService
                 ['statut' => 'inscrit'],
             );
         });
+
+        if ($membre->wasRecentlyCreated || $membre->wasChanged('statut')) {
+            $organisateur = $rencontre->utilisateur;
+
+            if ($organisateur !== null && (int) $organisateur->id_utilisateur !== (int) $utilisateur->id_utilisateur) {
+                $this->notifications->envoyer($organisateur, 'rencontre.membre', [
+                    'id_rencontre' => $rencontre->id_rencontre,
+                    'titre' => $rencontre->titre,
+                ]);
+            }
+        }
+
+        return $membre;
     }
 
     public function quitter(Rencontre $rencontre, User $utilisateur): void

@@ -288,6 +288,25 @@ class DatabaseSeeder extends Seeder
                 'statut' => 'ouverte',
             ],
         );
+
+        $verdun = Quartier::query()->where('nom_fr', 'Verdun')->first();
+
+        if ($verdun !== null) {
+            // Petit polygone de démonstration (GeoJSON) ; les limites réelles
+            // s'importent avec `quartiers:importer-polygones`.
+            $verdun->forceFill([
+                'polygon' => [
+                    'type' => 'Polygon',
+                    'coordinates' => [[
+                        [-73.5780, 45.4530],
+                        [-73.5580, 45.4530],
+                        [-73.5580, 45.4650],
+                        [-73.5780, 45.4650],
+                        [-73.5780, 45.4530],
+                    ]],
+                ],
+            ])->save();
+        }
     }
 
     private function localiser(User $utilisateur, string $nomVille, ?string $nomQuartier): void

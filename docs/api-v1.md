@@ -205,6 +205,40 @@ recherche interlangue.
 | `POST` | `/notifications/{id}/read` | Marquer comme lue |
 | `POST` | `/notifications/read-all` | Tout marquer comme lu |
 
+## Confiance et sécurité
+
+| Méthode | Route | Description |
+|---|---|---|
+| `POST` | `/signalements` | Signaler un contenu (`cible_type`, `cible_id`, `motif`, `description`) |
+| `GET` | `/moderation` | File de modération (gestionnaire/modérateur) |
+| `POST` | `/moderation/{id}/traiter` | Traiter un signalement (`action` : `rejeter`, `masquer`, `avertir`, `supprimer`) |
+| `POST` | `/utilisateurs/{id}/bloquer` | Bloquer un utilisateur |
+| `DELETE` | `/utilisateurs/{id}/bloquer` | Débloquer |
+| `POST` | `/prets/{id}/avis` | Noter un prêt terminé (`note` 1–5, `commentaire`) |
+
+`cible_type` accepte : `publication`, `outil`, `demande_aide`, `annonce`, `evenement`,
+`rencontre`, `utilisateur`. Chaque action de modération est journalisée dans
+`moderation_action`. Les contenus des utilisateurs bloqués sont exclus du fil et des
+listes du bloqueur. Un avis de prêt met à jour le score `fiabilite` (0–100) du voisin noté.
+
+## Messagerie privée
+
+| Méthode | Route | Description |
+|---|---|---|
+| `GET` | `/messages` | Mes conversations |
+| `POST` | `/messages` | Démarrer une conversation (`destinataire`) |
+| `GET` | `/messages/{id}` | Détail d’une conversation (membres) |
+| `POST` | `/messages/{id}` | Envoyer un message (`contenu`) |
+
+## Suivi de publication
+
+| Méthode | Route | Description |
+|---|---|---|
+| `POST` | `/publications/{id}/suivre` | Suivre une publication |
+| `DELETE` | `/publications/{id}/suivre` | Ne plus suivre |
+
+Les suiveurs reçoivent une notification lors d’un nouveau commentaire.
+
 ## Codes d'erreur notables
 
 | Code | Signification |
